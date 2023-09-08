@@ -16,19 +16,6 @@ public class DbInitializer
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
         await connection.ExecuteAsync("""
-                create table if not exists products(
-                id UUID primary key,
-                name TEXT not null,
-                description TEXT);
-                """);
-
-        await connection.ExecuteAsync("""
-                create unique index concurrently if not exists products_name_idx
-                on products
-                using btree(name);
-                """);
-
-        await connection.ExecuteAsync("""
             create table if not exists cars(
             id UUID primary key,
             yearOfProduction SMALLINT not null,
@@ -43,6 +30,13 @@ public class DbInitializer
                 create unique index concurrently if not exists cars_slug_idx
                 on cars
                 using btree(slug);
+                """);
+
+        await connection.ExecuteAsync("""
+                create table if not exists users(
+                id UUID primary key,
+                name VARCHAR(30) not null,
+                Email VARCHAR(30) not null);
                 """);
     }
 }

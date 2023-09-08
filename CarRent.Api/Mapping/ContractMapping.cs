@@ -1,6 +1,7 @@
 ﻿using CarRent.Application.Models;
 using CarRent.Contracts.Requests;
 using CarRent.Contracts.Responses;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CarRent.Api.Mapping
 {
@@ -68,5 +69,31 @@ namespace CarRent.Api.Mapping
                 PageSize = pageSize,
                 Total = carsCount
             };
+
+
+        public static User MapToUser(this CreateOrUpdateUserRequest request) =>
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                Email = request.Email
+            };
+
+        public static User MapToUser(this CreateOrUpdateUserRequest request, Guid id) =>
+            new()
+            {
+                Id = id,
+                Name = request.Name,
+                Email = request.Email
+            };
+
+        public static UserResponse MapToResponse(this User user) =>
+            new() 
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email  
+            };
+
     }
 }

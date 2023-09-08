@@ -42,6 +42,7 @@ namespace CarRent.Application.Repositories
         public async Task<bool> UpdateAsync(Car car, CancellationToken token = default)
         {
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+            var transaction = connection.BeginTransaction();
             var deleted = await connection.ExecuteAsync(new CommandDefinition($"""
                 delete from {tableName}
                 where id = @id
@@ -53,6 +54,7 @@ namespace CarRent.Application.Repositories
                 insert into {tableName} (id, yearOfProduction, brand, model, slug, engineType, bodyType)
                 values(@Id,@YearOfProduction,@Brand, @Model, @Slug, @EngineType, @BodyType)
                 """, car, cancellationToken: token));
+            transaction.Commit();
             _logger.LogInformation("Car '{CarSlug}' with id {CarId} update {result}",
                 car.Slug, car.Id, result > 0 ? "success" : "fail");
             return result > 0;

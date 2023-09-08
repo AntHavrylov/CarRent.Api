@@ -4,9 +4,9 @@ public static class ApiEndpoints
 {
     private const string ApiBase = "api";
 
-    public static class Products 
+    public static class Cars
     {
-        private const string Base = $"{ApiBase}/products";
+        private const string Base = $"{ApiBase}/cars";
 
         public const string Create = Base;
         public const string Get = $"{Base}/{{id:guid}}";
@@ -15,9 +15,9 @@ public static class ApiEndpoints
         public const string Delete = $"{Base}/{{id:guid}}";
     }
 
-    public static class Cars
+    public static class Users
     {
-        private const string Base = $"{ApiBase}/cars";
+        private const string Base = $"{ApiBase}/users";
 
         public const string Create = Base;
         public const string Get = $"{Base}/{{id:guid}}";

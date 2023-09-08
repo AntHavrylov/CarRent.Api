@@ -38,12 +38,15 @@ namespace CarRent.Api.Controllers
             {
                 return Conflict();
             }
-            return CreatedAtAction(nameof(Get), new { id = car.Id }, car.MapToCarResponse());
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = car.Id }, car.MapToCarResponse());
         }
 
         [HttpPut(ApiEndpoints.Cars.Update)]
-        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] CreateOrUpdateCarRequest request, CancellationToken token) 
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, 
+            [FromBody] CreateOrUpdateCarRequest request, 
+            CancellationToken token) 
         {
+            await _createCarRequestValidator.ValidateAndThrowAsync(request, token);
             var car = request.MapToCar(id);
             var result = await _carsService.UpdateAsync(car, token);
             return result is not null ? Ok(result.MapToCarResponse()) : NotFound();
@@ -63,7 +66,7 @@ namespace CarRent.Api.Controllers
 
         //[Authorize]
         [HttpGet(ApiEndpoints.Cars.Get)]
-        public async Task<IActionResult> Get([FromRoute] Guid id,
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id,
             CancellationToken token)
         {
             var car = await _carsService.GetByIdAsync(id, token);
