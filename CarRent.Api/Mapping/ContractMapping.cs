@@ -7,7 +7,6 @@ namespace CarRent.Api.Mapping
 {
     public static class ContractMapping
     {
-       
         public static Car MapToCar(this CreateOrUpdateCarRequest request) =>
             new()
             {
@@ -16,7 +15,7 @@ namespace CarRent.Api.Mapping
                 Model = request.Model,
                 EngineType = (EngineType)Enum.Parse(typeof(EngineType), request.EngineType),
                 BodyType = (BodyType)Enum.Parse(typeof(BodyType), request.BodyType),
-                YearOfProduction = request.YearOfProduction,                
+                YearOfProduction = request.YearOfProduction,
             };
 
         public static Car MapToCar(this CreateOrUpdateCarRequest request, Guid id) =>
@@ -43,7 +42,7 @@ namespace CarRent.Api.Mapping
             };
 
         public static GetAllCarsOptions MapToGetAllCarsOptions(this GetAllCarsRequest request) =>
-            new() 
+            new()
             {
                 Slug = request.Slug,
                 YearOfProduction = request?.YearOfProduction,
@@ -56,7 +55,7 @@ namespace CarRent.Api.Mapping
                         SortOrder.Descending :
                         SortOrder.Ascending,
             };
-        public static CarsResponse MapToCarResponses(
+        public static CarsResponse MapToCarsResponse(
             this IEnumerable<Car> cars,
             int page,
             int pageSize,
@@ -88,11 +87,45 @@ namespace CarRent.Api.Mapping
             };
 
         public static UserResponse MapToResponse(this User user) =>
-            new() 
+            new()
             {
                 Id = user.Id,
                 Name = user.Name,
-                Email = user.Email  
+                Email = user.Email
+            };
+
+        public static UsersResponse MapToUsersResponse(
+            this IEnumerable<User> users) => new()
+            {
+                Items = users.Select(MapToResponse)
+            };
+
+        public static Order MapToOrder(this CreateOrUpdateOrderRequest request,
+            Guid userId,
+            Guid id = default) =>
+            new()
+            {
+                Id = id == default ? Guid.NewGuid() : id,
+                UserId = userId,
+                CarId = request.CarId,
+                DateFrom = request.DateFrom,
+                DateTo = request.DateTo,
+            };
+
+        public static OrderResponse MapToResponse(this Order order) =>
+            new()
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                CarId = order.CarId,
+                DateFrom = order.DateFrom,
+                DateTo = order.DateTo,
+            };
+
+        public static OrdersResponse MapToResponse(this IEnumerable<Order> orders) =>
+            new()
+            {
+                Items = orders.Select(MapToResponse)
             };
 
     }

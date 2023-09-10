@@ -24,7 +24,7 @@ namespace CarRent.Api.Controllers
 
 
         [HttpPost(ApiEndpoints.Users.Create)]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateOrUpdateUserRequest request,
+        public async Task<IActionResult> Create([FromBody] CreateOrUpdateUserRequest request,
             CancellationToken token) 
         {
             await _userRequestValidator.ValidateAndThrowAsync(request,token);
@@ -34,11 +34,11 @@ namespace CarRent.Api.Controllers
             {
                 return Conflict();
             }
-            return CreatedAtAction(nameof(GetByIdAsync), new { user.Id }, user.MapToResponse());
+            return CreatedAtAction(nameof(GetById), new { user.Id }, user.MapToResponse());
         }
 
-        [HttpGet(ApiEndpoints.Users.Get)]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id,
+        [HttpGet(ApiEndpoints.Users.GetById)]
+        public async Task<IActionResult> GetById([FromRoute] Guid id,
             CancellationToken token)
         { 
             var user = await _userService.GetByIdAsync(id,token);
@@ -46,16 +46,16 @@ namespace CarRent.Api.Controllers
         }
 
         [HttpGet(ApiEndpoints.Users.GetAll)]
-        public async Task<IActionResult> GetAllAsync(CancellationToken token)
+        public async Task<IActionResult> GetAll(CancellationToken token)
         {
             var users = await _userService.GetAllAsync(token);
             
             
-            return user is not null ? Ok(user.MapToResponse()) : NotFound();
+            return Ok(users.MapToUsersResponse());
         }
 
         [HttpPut(ApiEndpoints.Users.Update)]
-        public async Task<IActionResult> UpdateUserAsync([FromRoute] Guid id,
+        public async Task<IActionResult> Update([FromRoute] Guid id,
             [FromBody] CreateOrUpdateUserRequest request,
             CancellationToken token)
         {
@@ -66,7 +66,7 @@ namespace CarRent.Api.Controllers
         }
 
         [HttpDelete(ApiEndpoints.Users.Delete)]
-        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id,
+        public async Task<IActionResult> Delete([FromRoute] Guid id,
             CancellationToken token)
         {
             var result = await _userService.DeleteByIdAsync(id,token);

@@ -38,5 +38,14 @@ public class DbInitializer
                 name VARCHAR(30) not null,
                 Email VARCHAR(30) not null);
                 """);
+
+        await connection.ExecuteAsync("""
+                create table if not exists orders(
+                id UUID primary key,
+                user_id UUID not null,
+                car_id UUID not null,
+                date_from timestamp not null default current_date,
+                date_to timestamp not null default DATE '9999-12-31');
+                """);
     }
 }

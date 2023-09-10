@@ -25,7 +25,7 @@ public class UserRepository : IUserRepository
             insert into {tableName} (id,name,email)
             values (@id,@name,@email)
             """,user,cancellationToken: token));
-        _logger.LogInformation("User {UserId} create {OpResult}",user.Id, result > 0);
+        _logger.LogInformation("User {UserId} create {OpResult}",user.Id, result > 0 ? "success" : "fail");
         return result > 0;
     }
 
@@ -36,7 +36,7 @@ public class UserRepository : IUserRepository
             delete from {tableName}
             where id = @id
             """, new { id} , cancellationToken: token));
-        _logger.LogInformation("User {UserId} delete {OpResult}", id, result > 0);
+        _logger.LogInformation("User {UserId} delete {OpResult}", id, result > 0 ? "success" : "fail");
         return result > 0;
     }
 
@@ -44,7 +44,7 @@ public class UserRepository : IUserRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
-            select count(1) {tableName}
+            select count(1) from {tableName} 
             where id = @id
             """, new { id }, cancellationToken: token));
     }
@@ -64,7 +64,7 @@ public class UserRepository : IUserRepository
             select * from {tableName}
             where id = @id
             """, new { id }, cancellationToken: token));
-        _logger.LogInformation("User {UserId} retrieve {OpResult}", id, result is not null);
+        _logger.LogInformation("User {UserId} retrieve {OpResult}", id, result is not null ? "success" : "fail");
         return result;
     }
 
@@ -78,10 +78,10 @@ public class UserRepository : IUserRepository
             """, new { user.Id }, cancellationToken: token));
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
             insert into {tableName} (id,name,email)
-            values (@id,@name,@email)
-            """, user, cancellationToken: token));
+            values (@Id,@Name,@Email)
+            """, user , cancellationToken: token));
         transaction.Commit();
-        _logger.LogInformation("User {UserId} Update {OpResult}", user.Id, result > 0);
+        _logger.LogInformation("User {UserId} Update {OpResult}", user.Id, result > 0 ? "success" : "fail");
         return result > 0;
     }
 }

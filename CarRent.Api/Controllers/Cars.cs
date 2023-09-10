@@ -61,7 +61,7 @@ namespace CarRent.Api.Controllers
             var options = request.MapToGetAllCarsOptions();
             var result = await _carsService.GetAllAsync(options, token);
             var carsCount = await _carsService.GetCountAsync(options, token);
-            return Ok(result.MapToCarResponses(options.Page, options.PageSize, carsCount));
+            return Ok(result.MapToCarsResponse(options.Page, options.PageSize, carsCount));
         }
 
         //[Authorize]

@@ -1,7 +1,6 @@
 ﻿using CarRent.Application.DataBase;
 using CarRent.Application.Repositories;
 using CarRent.Application.Services;
-using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CarRent.Application;
@@ -12,6 +11,10 @@ public static class ApplicationServiceCollectionExtensions
     {
         services.AddSingleton<ICarsRepository, CarsRepository>();
         services.AddSingleton<ICarsService, CarsService>();
+        services.AddSingleton<IUserRepository, UserRepository>();
+        services.AddSingleton<IUserService, UserService>();
+        services.AddSingleton<IOrdersRepository,OrdersRepository>();
+        services.AddSingleton<IOrdersService,OrdersService>();
         return services;
     }
 
