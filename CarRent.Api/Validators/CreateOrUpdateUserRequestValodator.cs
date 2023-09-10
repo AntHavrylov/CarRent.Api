@@ -1,4 +1,5 @@
-﻿using CarRent.Contracts.Requests;
+﻿using CarRent.Application.Repositories;
+using CarRent.Contracts.Requests;
 using FluentValidation;
 using System.Text.RegularExpressions;
 
@@ -6,6 +7,7 @@ namespace CarRent.Api.Validators;
 
 public partial class CreateOrUpdateUserRequestValodator : AbstractValidator<CreateOrUpdateUserRequest>
 {
+    
     public CreateOrUpdateUserRequestValodator()
     {
         RuleFor(x => x.Name)

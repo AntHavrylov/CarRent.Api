@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CarRent.Api.Controllers
 {
 
-   
+
 
     [ApiController]
     public class Users : ControllerBase
@@ -25,12 +25,12 @@ namespace CarRent.Api.Controllers
 
         [HttpPost(ApiEndpoints.Users.Create)]
         public async Task<IActionResult> Create([FromBody] CreateOrUpdateUserRequest request,
-            CancellationToken token) 
+            CancellationToken token)
         {
-            await _userRequestValidator.ValidateAndThrowAsync(request,token);
+            await _userRequestValidator.ValidateAndThrowAsync(request, token);
             var user = request.MapToUser();
-            var result = await _userService.CreateAsync(user,token);
-            if (!result) 
+            var result = await _userService.CreateAsync(user, token);
+            if (!result)
             {
                 return Conflict();
             }
@@ -40,17 +40,17 @@ namespace CarRent.Api.Controllers
         [HttpGet(ApiEndpoints.Users.GetById)]
         public async Task<IActionResult> GetById([FromRoute] Guid id,
             CancellationToken token)
-        { 
-            var user = await _userService.GetByIdAsync(id,token);
-            return user is not null ? Ok(user.MapToResponse()) : NotFound();      
+        {
+            var user = await _userService.GetByIdAsync(id, token);
+            return user is not null ? Ok(user.MapToResponse()) : NotFound();
         }
 
         [HttpGet(ApiEndpoints.Users.GetAll)]
         public async Task<IActionResult> GetAll(CancellationToken token)
         {
             var users = await _userService.GetAllAsync(token);
-            
-            
+
+
             return Ok(users.MapToUsersResponse());
         }
 
@@ -59,17 +59,17 @@ namespace CarRent.Api.Controllers
             [FromBody] CreateOrUpdateUserRequest request,
             CancellationToken token)
         {
-            await _userRequestValidator.ValidateAndThrowAsync(request);
+            await _userRequestValidator.ValidateAndThrowAsync(request, token);
             var user = request.MapToUser(id);
             var updatedUser = await _userService.UpdateAsync(user, token);
-            return updatedUser is not null ? Ok(updatedUser.MapToResponse()) : NotFound() ;
+            return updatedUser is not null ? Ok(updatedUser.MapToResponse()) : NotFound();
         }
 
         [HttpDelete(ApiEndpoints.Users.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid id,
             CancellationToken token)
         {
-            var result = await _userService.DeleteByIdAsync(id,token);
+            var result = await _userService.DeleteByIdAsync(id, token);
             return result ? Ok(result) : NotFound();
         }
 

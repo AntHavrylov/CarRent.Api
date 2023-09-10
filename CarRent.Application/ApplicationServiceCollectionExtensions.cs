@@ -1,6 +1,7 @@
 ﻿using CarRent.Application.DataBase;
 using CarRent.Application.Repositories;
 using CarRent.Application.Services;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CarRent.Application;
@@ -15,6 +16,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton<IUserService, UserService>();
         services.AddSingleton<IOrdersRepository,OrdersRepository>();
         services.AddSingleton<IOrdersService,OrdersService>();
+        services.AddValidatorsFromAssemblyContaining<CarRentApplicationMarker>(ServiceLifetime.Singleton);
         return services;
     }
 

@@ -14,6 +14,8 @@ public interface IUserRepository
     
     Task<bool> ExistsByIdAsync(Guid id, CancellationToken token = default);
 
+    Task<bool> ExistsByEmailAndIdAsync(Guid id,string email, CancellationToken token = default);
+
     Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default);
 
 }

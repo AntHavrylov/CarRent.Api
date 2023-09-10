@@ -40,6 +40,16 @@ public class UserRepository : IUserRepository
         return result > 0;
     }
 
+    public async Task<bool> ExistsByEmailAndIdAsync(Guid id, string email, CancellationToken token = default)
+    {
+        using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
+            select count(1) from {tableName}
+            where email = @email
+            and id != @id
+            """,new { id, email} , cancellationToken:token ));
+    }
+
     public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken token = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
