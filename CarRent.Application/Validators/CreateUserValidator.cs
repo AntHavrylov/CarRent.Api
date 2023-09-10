@@ -20,6 +20,6 @@ public class CreateUserValidator : AbstractValidator<User>
             .WithMessage($" Another user with current email already exists.");
     }
 
-    private async Task<bool> EmailExists(Guid id, string email, CancellationToken token) =>
+    private async Task<bool> EmailExists(Guid id, string email, CancellationToken token = default) =>
         await _userRepository.ExistsByEmailAndIdAsync(id,email, token);
 }

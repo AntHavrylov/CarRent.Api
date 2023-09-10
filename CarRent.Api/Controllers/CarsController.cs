@@ -11,13 +11,13 @@ namespace CarRent.Api.Controllers
 {
 
     [ApiController]
-    public class Cars : ControllerBase
+    public class CarsController : ControllerBase
     {
         private readonly ICarsService _carsService;
         private readonly IValidator<CreateOrUpdateCarRequest> _createCarRequestValidator;
         private readonly IValidator<GetAllCarsRequest> _getAllCarsRequestValidator;
 
-        public Cars(ICarsService carsService,
+        public CarsController(ICarsService carsService,
             IValidator<CreateOrUpdateCarRequest> createCarRequestValidator,
             IValidator<GetAllCarsRequest> getAllCarsRequestValidator)
         {

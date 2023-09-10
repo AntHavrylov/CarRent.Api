@@ -10,12 +10,12 @@ namespace CarRent.Api.Controllers
 {
 
     [ApiController]
-    public class Orders : ControllerBase
+    public class OrdersController : ControllerBase
     {
         private readonly IOrdersService _ordersService;
         private readonly IValidator<CreateOrUpdateOrderRequest> _requestValidator;
 
-        public Orders(IOrdersService ordersService, 
+        public OrdersController(IOrdersService ordersService, 
             IValidator<CreateOrUpdateOrderRequest> requestValidator)
         {
             _ordersService = ordersService;

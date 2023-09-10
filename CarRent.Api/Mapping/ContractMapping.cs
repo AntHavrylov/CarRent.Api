@@ -128,5 +128,27 @@ namespace CarRent.Api.Mapping
                 Items = orders.Select(MapToResponse)
             };
 
+        public static CarRating MapToCarRating(this RateCarRequest request, Guid userId) =>
+            new()
+            {
+                UserId = userId,
+                CarId = request.CarId,
+                Rating = request.Rating
+            };
+
+        public static CarRatingResponse MapToCarRatingResponse(this CarRating carRating) =>
+            new()
+            {
+                UserId = carRating.UserId,
+                CarId = carRating.CarId,
+                Rating = carRating.Rating
+            };
+
+        public static CarRatingsResponse MapToCarRatingsResponse(this IEnumerable<CarRating> carRatings) =>
+            new()
+            {
+                Items = carRatings.Select(MapToCarRatingResponse)
+            };
+
     }
 }

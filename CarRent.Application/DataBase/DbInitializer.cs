@@ -47,5 +47,13 @@ public class DbInitializer
                 date_from timestamp not null default current_date,
                 date_to timestamp not null default DATE '9999-12-31');
                 """);
+
+        await connection.ExecuteAsync("""
+            create table if not exists ratings (
+            user_id uuid,
+            car_id uuid references cars (id),
+            rating integer not null,
+            primary key (user_id, car_id));
+        """);
     }
 }

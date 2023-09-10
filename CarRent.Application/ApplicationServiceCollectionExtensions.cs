@@ -16,6 +16,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton<IUserService, UserService>();
         services.AddSingleton<IOrdersRepository,OrdersRepository>();
         services.AddSingleton<IOrdersService,OrdersService>();
+        services.AddSingleton<IRatingRepository, RatingRepository>();
+        services.AddSingleton<IRatingService, RatingService>();
         services.AddValidatorsFromAssemblyContaining<CarRentApplicationMarker>(ServiceLifetime.Singleton);
         return services;
     }

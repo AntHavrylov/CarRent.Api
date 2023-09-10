@@ -8,15 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace CarRent.Api.Controllers
 {
 
-
-
     [ApiController]
-    public class Users : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IValidator<CreateOrUpdateUserRequest> _userRequestValidator;
         private readonly IUserService _userService;
 
-        public Users(IUserService userService,
+        public UsersController(IUserService userService,
             IValidator<CreateOrUpdateUserRequest> userRequestValidator)
         {
             _userService = userService;
@@ -52,8 +50,6 @@ namespace CarRent.Api.Controllers
         public async Task<IActionResult> GetAll(CancellationToken token)
         {
             var users = await _userService.GetAllAsync(token);
-
-
             return Ok(users.MapToUsersResponse());
         }
 
