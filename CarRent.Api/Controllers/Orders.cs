@@ -57,7 +57,7 @@ namespace CarRent.Api.Controllers
             return result ? Ok(result) : NotFound();
         }
 
-        [Authorize(AuthConstants.AdminUserClaimName)]
+        [Authorize(AuthConstants.TrustedMemberClaimName)]
         [HttpDelete(ApiEndpoints.Orders.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid id,
             CancellationToken token)

@@ -26,7 +26,7 @@ namespace CarRent.Api.Controllers
             _getAllCarsRequestValidator = getAllCarsRequestValidator;
         }
 
-        //[Authorize(AuthConstants.TrustedMemberPolicyName)]
+        [Authorize(AuthConstants.TrustedMemberPolicyName)]
         [HttpPost(ApiEndpoints.Cars.Create)]
         public async Task<IActionResult> CreateAsync([FromBody] CreateOrUpdateCarRequest request,
             CancellationToken token)
@@ -41,6 +41,7 @@ namespace CarRent.Api.Controllers
             return CreatedAtAction(nameof(GetByIdAsync), new { id = car.Id }, car.MapToCarResponse());
         }
 
+        [Authorize(AuthConstants.TrustedMemberPolicyName)]
         [HttpPut(ApiEndpoints.Cars.Update)]
         public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, 
             [FromBody] CreateOrUpdateCarRequest request, 
@@ -52,7 +53,7 @@ namespace CarRent.Api.Controllers
             return result is not null ? Ok(result.MapToCarResponse()) : NotFound();
         }
 
-
+        [AllowAnonymous]
         [HttpGet(ApiEndpoints.Cars.GetAll)]
         public async Task<IActionResult> GetAll([FromQuery] GetAllCarsRequest request,
             CancellationToken token)
@@ -64,7 +65,6 @@ namespace CarRent.Api.Controllers
             return Ok(result.MapToCarsResponse(options.Page, options.PageSize, carsCount));
         }
 
-        //[Authorize]
         [HttpGet(ApiEndpoints.Cars.Get)]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id,
             CancellationToken token)
@@ -73,6 +73,7 @@ namespace CarRent.Api.Controllers
             return car is null ? NotFound() : Ok(car.MapToCarResponse());
         }
 
+        [Authorize(AuthConstants.AdminUserClaimName)]
         [HttpDelete(ApiEndpoints.Cars.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid id,
             CancellationToken token)
