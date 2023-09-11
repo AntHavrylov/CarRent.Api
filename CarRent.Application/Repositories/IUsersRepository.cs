@@ -2,7 +2,7 @@
 
 namespace CarRent.Application.Repositories;
 
-public interface IUserRepository
+public interface IUsersRepository
 {
     Task<bool> CreateAsync(User user, CancellationToken token = default);
 

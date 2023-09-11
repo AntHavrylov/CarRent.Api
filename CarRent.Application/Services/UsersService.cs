@@ -4,12 +4,12 @@ using FluentValidation;
 
 namespace CarRent.Application.Services;
 
-public class UserService : IUserService
+public class UsersService : IUsersService
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IUsersRepository _userRepository;
     private readonly IValidator<User> _userValidator;
 
-    public UserService(IUserRepository userRepository,
+    public UsersService(IUsersRepository userRepository,
         IValidator<User> userValidator)
     {
         _userValidator = userValidator; 

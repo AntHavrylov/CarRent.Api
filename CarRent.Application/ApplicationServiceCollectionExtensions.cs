@@ -12,12 +12,12 @@ public static class ApplicationServiceCollectionExtensions
     {
         services.AddSingleton<ICarsRepository, CarsRepository>();
         services.AddSingleton<ICarsService, CarsService>();
-        services.AddSingleton<IUserRepository, UserRepository>();
-        services.AddSingleton<IUserService, UserService>();
+        services.AddSingleton<IUsersRepository, UsersRepository>();
+        services.AddSingleton<IUsersService, UsersService>();
         services.AddSingleton<IOrdersRepository,OrdersRepository>();
         services.AddSingleton<IOrdersService,OrdersService>();
-        services.AddSingleton<IRatingRepository, RatingRepository>();
-        services.AddSingleton<IRatingService, RatingService>();
+        services.AddSingleton<IRatingsRepository, RatingsRepository>();
+        services.AddSingleton<IRatingsService, RatingsService>();
         services.AddValidatorsFromAssemblyContaining<CarRentApplicationMarker>(ServiceLifetime.Singleton);
         return services;
     }

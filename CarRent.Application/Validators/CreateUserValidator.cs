@@ -6,9 +6,9 @@ namespace CarRent.Application.Validators;
 
 public class CreateUserValidator : AbstractValidator<User>
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IUsersRepository _userRepository;
 
-    public CreateUserValidator(IUserRepository userRepository, CancellationToken token = default)
+    public CreateUserValidator(IUsersRepository userRepository, CancellationToken token = default)
     {
         _userRepository = userRepository;
         RuleFor(x => x)
@@ -17,7 +17,7 @@ public class CreateUserValidator : AbstractValidator<User>
                 var result = await EmailExists(x.Id, x.Email, token);
                 return !result;
             })
-            .WithMessage($" Another user with current email already exists.");
+            .WithMessage("Another user with current email already exists.");
     }
 
     private async Task<bool> EmailExists(Guid id, string email, CancellationToken token = default) =>

@@ -6,10 +6,10 @@ namespace CarRent.Application.Validators;
 
 public class CreateRatingValidator : AbstractValidator<CarRating>
 {
-    private readonly IRatingRepository _ratingRepository;
+    private readonly IRatingsRepository _ratingRepository;
       
 
-    public CreateRatingValidator(IRatingRepository ratingRepository,CancellationToken token = default)
+    public CreateRatingValidator(IRatingsRepository ratingRepository,CancellationToken token = default)
     {
         _ratingRepository = ratingRepository;
         RuleFor(x => x)

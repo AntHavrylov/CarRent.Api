@@ -2,7 +2,7 @@
 
 namespace CarRent.Application.Services;
 
-public interface IUserService
+public interface IUsersService
 {
     Task<bool> CreateAsync(User user, CancellationToken token = default);
 

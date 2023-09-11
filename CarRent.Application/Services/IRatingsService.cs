@@ -2,7 +2,7 @@
 
 namespace CarRent.Application.Services;
 
-public interface IRatingService
+public interface IRatingsService
 {
     Task<bool> RateCarAsync(CarRating rating, CancellationToken token = default);
 

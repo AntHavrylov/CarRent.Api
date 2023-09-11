@@ -14,12 +14,13 @@ public class CreateOrUpdateOrderRequestValidator : AbstractValidator<CreateOrUpd
         ICarsRepository carsRepository,
         CancellationToken token = default)
     {
+        _carsRepository = carsRepository;
         _ordersRepository = ordersRepository;
 
         RuleFor(x => x.DateFrom)
             .GreaterThanOrEqualTo(DateTime.Now);
         RuleFor(x => x.DateTo)
-            .GreaterThan(x => x.DateFrom)
+            .GreaterThanOrEqualTo(x => x.DateFrom)
             .WithMessage($"Date to has to be greated than date from.");
         RuleFor(x => x)
             .MustAsync(async (x, token) =>
@@ -28,7 +29,6 @@ public class CreateOrUpdateOrderRequestValidator : AbstractValidator<CreateOrUpd
                 return !result;
             })
             .WithMessage($"Unable to create order it's overlapped with exists one.");
-        _carsRepository = carsRepository;
 
         RuleFor(x => x.CarId)
             .MustAsync(CarExists)

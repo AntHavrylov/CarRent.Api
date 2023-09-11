@@ -2,7 +2,7 @@
 
 namespace CarRent.Application.Repositories;
 
-public interface IRatingRepository
+public interface IRatingsRepository
 {
     Task<bool> RateCarAsync(Guid userId, Guid carId, int rating, CancellationToken token = default);
 

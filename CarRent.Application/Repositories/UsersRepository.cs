@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace CarRent.Application.Repositories;
 
-public class UserRepository : IUserRepository
+public class UsersRepository : IUsersRepository
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ILogger<CarsRepository> _logger;
 
-    public UserRepository(IDbConnectionFactory dbConnectionFactory,
+    public UsersRepository(IDbConnectionFactory dbConnectionFactory,
         ILogger<CarsRepository> logger)
     {
         _dbConnectionFactory = dbConnectionFactory;

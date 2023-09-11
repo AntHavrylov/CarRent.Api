@@ -4,12 +4,12 @@ using FluentValidation;
 
 namespace CarRent.Application.Services;
 
-public class RatingService : IRatingService
+public class RatingsService : IRatingsService
 {
-    private readonly IRatingRepository _ratingRepository;
+    private readonly IRatingsRepository _ratingRepository;
     private readonly IValidator<CarRating> _ratingValidator;
 
-    public RatingService(IRatingRepository ratingRepository, IValidator<CarRating> ratingValidator)
+    public RatingsService(IRatingsRepository ratingRepository, IValidator<CarRating> ratingValidator)
     {
         _ratingRepository = ratingRepository;
         _ratingValidator = ratingValidator;
