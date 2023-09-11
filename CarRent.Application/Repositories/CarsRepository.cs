@@ -14,9 +14,6 @@ namespace CarRent.Application.Repositories
 {
     public class CarsRepository : ICarsRepository
     {
-        private const string tableName = "cars";
-        private const string ratingsTableName = "ratings";
-        private const string ordersTableName = "orders";
         private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly ILogger<CarsRepository> _logger;
 
@@ -32,7 +29,7 @@ namespace CarRent.Application.Repositories
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
             var result = await connection.ExecuteAsync(
                 new CommandDefinition($"""
-                insert into {tableName} (id, yearOfProduction, brand, model, slug, engineType, bodyType)
+                insert into {DbConstants.CarsTableName} (id, yearOfProduction, brand, model, slug, engineType, bodyType)
                 values(@Id,@YearOfProduction,@Brand, @Model, @Slug, @EngineType, @BodyType)
                 """, car, cancellationToken: token));
 
@@ -47,7 +44,7 @@ namespace CarRent.Application.Repositories
                         
             var result = await connection.ExecuteAsync(
                 new CommandDefinition($"""
-                update {tableName}
+                update {DbConstants.CarsTableName}
                 set yearOfProduction = @YearOfProduction,brand = @Brand,
                     model = @Model, slug = @Slug, engineType = @EngineType, bodyType = @BodyType                
                 where id = @Id
@@ -62,7 +59,7 @@ namespace CarRent.Application.Repositories
         {
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
             return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
-            select count(1) from {tableName} where id = @id
+            select count(1) from {DbConstants.CarsTableName} where id = @id
             """, new { id }, cancellationToken: token));
         }
 
@@ -70,20 +67,21 @@ namespace CarRent.Application.Repositories
         {
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
-            await connection.ExecuteAsync(new CommandDefinition($"""
-                delete from {ordersTableName}
-                where car_id = @id
-                """, new {id} , cancellationToken:token));
+            await connection.ExecuteAsync(new CommandDefinition($""""
+                delete from {DbConstants.OrdersTableName}
+                where car_id = @id;
+                """", new { id }, cancellationToken: token));
 
             await connection.ExecuteAsync(new CommandDefinition($"""
-                delete from {ratingsTableName}
-                where car_id = @id
+                delete from {DbConstants.RatingsTableName}
+                where car_id = @id;
                 """, new { id }, cancellationToken: token));
 
-            var result = await connection.ExecuteAsync(new CommandDefinition($"""
-                delete from {tableName}
-                where id = @id
+            var result = await connection.ExecuteAsync(new CommandDefinition($"""                
+                delete from {DbConstants.CarsTableName}
+                where id = @id;
                 """, new { id }, cancellationToken: token));
+
             _logger.LogInformation("Car with id {CarId} delete {result}",
                 id, result > 0 ? "success" : "fail");
             return result > 0;
@@ -102,8 +100,8 @@ namespace CarRent.Application.Repositories
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
             var result = await connection.QueryAsync(new CommandDefinition($"""
                 select c.*, round(avg(r.rating), 1) as rating
-                from {tableName} c
-                left join {ratingsTableName} r on r.car_id = c.id
+                from {DbConstants.CarsTableName} c
+                left join {DbConstants.RatingsTableName} r on r.car_id = c.id
                 where (@slug is null or slug like ('%' || @slug || '%')) 
                 and (@yearOfProduction is null or yearofproduction = @yearOfProduction)
                 group by id
@@ -136,7 +134,7 @@ namespace CarRent.Application.Repositories
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);                   
 
             var result = await connection.QuerySingleAsync<Car>(new CommandDefinition($"""
-                select * from {tableName}
+                select * from {DbConstants.CarsTableName}
                 where id = @id
                 """
                 , new { id }, cancellationToken: token));
@@ -148,7 +146,7 @@ namespace CarRent.Application.Repositories
         {
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
             var result = await connection.QuerySingleAsync<int>(new CommandDefinition($"""
-                select count(1) from {tableName}
+                select count(1) from {DbConstants.CarsTableName}
                 where (@slug is null or slug like ('%' || @slug || '%')) 
                 and (@yearOfProduction is null or yearofproduction = @yearOfProduction)
                 """, 

@@ -7,11 +7,6 @@ namespace CarRent.Application.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private const string tableName = "users";
-    private const string ordersTableName = "orders";
-    private const string ratingsTableName = "ratings";
-    
-
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ILogger<CarsRepository> _logger;
 
@@ -26,7 +21,7 @@ public class UserRepository : IUserRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            insert into {tableName} (id,name,email)
+            insert into {DbConstants.UsersTableName} (id,name,email)
             values (@id,@name,@email)
             """,user,cancellationToken: token));
         _logger.LogInformation("User {UserId} create {OpResult}",user.Id, result > 0 ? "success" : "fail");
@@ -35,21 +30,20 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
     {
-        using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
-
+        using var connection = await _dbConnectionFactory.CreateConnectionAsync(token); 
         await connection.ExecuteAsync(new CommandDefinition($"""
-            delete from {ordersTableName}
-            where user_id = @id
+            delete from {DbConstants.OrdersTableName}
+            where user_id = @id;
             """, new { id }, cancellationToken: token));
 
-        await connection.ExecuteAsync( new CommandDefinition($"""
-            delete from {ratingsTableName}
-            where user_id = @id
-            """, new {id}, cancellationToken: token));
-        
+        await connection.ExecuteAsync(new CommandDefinition($"""
+            delete from { DbConstants.RatingsTableName }
+            where user_id = @id;
+            """, new { id} , cancellationToken: token));
+
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            delete from {tableName}
-            where id = @id
+            delete from {DbConstants.UsersTableName}
+            where id = @id;
             """, new { id} , cancellationToken: token));
 
         _logger.LogInformation("User {UserId} delete {OpResult}", id, result > 0 ? "success" : "fail");
@@ -60,7 +54,7 @@ public class UserRepository : IUserRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
-            select count(1) from {tableName}
+            select count(1) from {DbConstants.UsersTableName}
             where email = @email
             and id != @id
             """,new { id, email} , cancellationToken:token ));
@@ -70,7 +64,7 @@ public class UserRepository : IUserRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
-            select count(1) from {tableName} 
+            select count(1) from {DbConstants.UsersTableName} 
             where id = @id
             """, new { id }, cancellationToken: token));
     }
@@ -79,7 +73,7 @@ public class UserRepository : IUserRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.QueryAsync<User>(new CommandDefinition($"""
-            select * from {tableName}
+            select * from {DbConstants.UsersTableName}
             """, cancellationToken: token));
     }
 
@@ -87,7 +81,7 @@ public class UserRepository : IUserRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.QuerySingleAsync<User>(new CommandDefinition($"""
-            select * from {tableName}
+            select * from {DbConstants.UsersTableName}
             where id = @id
             """, new { id }, cancellationToken: token));
         _logger.LogInformation("User {UserId} retrieve {OpResult}", id, result is not null ? "success" : "fail");
@@ -99,7 +93,7 @@ public class UserRepository : IUserRepository
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
                 
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            update {tableName} 
+            update {DbConstants.UsersTableName} 
             set name = @Name,email = @Email
             where id = @id
             """, user , cancellationToken: token));

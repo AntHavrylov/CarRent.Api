@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"userid\": \"25afc9c2-fbdc-408f-9d69-572f1fe7a7b3\",\r\n    \"email\": \"ant@gmail.com\",\r\n    \"customClaims\": {\r\n         \"admin\": true,\r\n         \"trusted_member\": false\r\n    }\r\n}",
+							"raw": "{\r\n    \"userid\": \"e1b2fd4e-58bf-4265-af32-1b871b824625\",\r\n    \"email\": \"ant@gmail.com\",\r\n    \"customClaims\": {\r\n         \"admin\": true,\r\n         \"trusted_member\": false\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -286,7 +286,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "https://localhost:5001/api/users/cbfc21ea-8289-4dab-ac5b-33114423845b",
+							"raw": "https://localhost:5001/api/users/e1b2fd4e-58bf-4265-af32-1b871b824625",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -295,7 +295,7 @@
 							"path": [
 								"api",
 								"users",
-								"cbfc21ea-8289-4dab-ac5b-33114423845b"
+								"e1b2fd4e-58bf-4265-af32-1b871b824625"
 							]
 						}
 					},
@@ -313,7 +313,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"carId\": \"b08b4335-2058-4f36-aa0c-66ca4cb19e3b\",\r\n  \"dateFrom\": \"2023-09-22T09:50:03.440Z\",\r\n  \"dateTo\": \"2023-09-22T09:51:03.440Z\"\r\n}",
+							"raw": "{\r\n  \"carId\": \"25afc9c2-fbdc-408f-9d69-572f1fe7a7b3\",\r\n  \"dateFrom\": \"2023-09-22T09:50:03.440Z\",\r\n  \"dateTo\": \"2023-09-22T09:51:03.440Z\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -416,6 +416,28 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Cancel user order",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/orders/me/3c123647-f26e-4c17-9dc9-11f01e98cdc8",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"orders",
+								"me",
+								"3c123647-f26e-4c17-9dc9-11f01e98cdc8"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -497,6 +519,30 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "HealtCheck",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/_health",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"_health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"auth": {
@@ -504,7 +550,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjQ4Mzg5ZC01MjUwLTRjNGEtOWVkZC03MDZkNzFjMzU4MTUiLCJzdWIiOiJhbnRAZ21haWwuY29tIiwiZW1haWwiOiJhbnRAZ21haWwuY29tIiwidXNlcmlkIjoiMjVhZmM5YzItZmJkYy00MDhmLTlkNjktNTcyZjFmZTdhN2IzIiwiYWRtaW4iOnRydWUsInRydXN0ZWRfbWVtYmVyIjpmYWxzZSwibmJmIjoxNjk0NDE0NjA5LCJleHAiOjE2OTQ0NDM0MDksImlhdCI6MTY5NDQxNDYwOSwiaXNzIjoiaHR0cHM6Ly9pZC5hbnRvbmhhdnJ5bG92LmNvbSIsImF1ZCI6Imh0dHBzOi8vcHJvZHVjdHMuYW50b25oYXZyeWxvdi5jb20ifQ.56-GnmmL0gnO6Nnsutg7IyQ8Ed4iG5TH6zyLpCIieZI",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyOWQxZWMwNC0zYWUzLTRkMjMtOTg0ZS0wMmJlYzJmYTkxYTYiLCJzdWIiOiJhbnRAZ21haWwuY29tIiwiZW1haWwiOiJhbnRAZ21haWwuY29tIiwidXNlcmlkIjoiZTFiMmZkNGUtNThiZi00MjY1LWFmMzItMWI4NzFiODI0NjI1IiwiYWRtaW4iOnRydWUsInRydXN0ZWRfbWVtYmVyIjpmYWxzZSwibmJmIjoxNjk0NDIwMTE1LCJleHAiOjE2OTQ0NDg5MTUsImlhdCI6MTY5NDQyMDExNSwiaXNzIjoiaHR0cHM6Ly9pZC5hbnRvbmhhdnJ5bG92LmNvbSIsImF1ZCI6Imh0dHBzOi8vcHJvZHVjdHMuYW50b25oYXZyeWxvdi5jb20ifQ.SOa5L41_ULVLYlj0qwtM3sa4wPVj-hZIzI0-skn8SMg",
 				"type": "string"
 			}
 		]

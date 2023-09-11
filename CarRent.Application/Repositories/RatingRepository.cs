@@ -2,14 +2,11 @@
 using CarRent.Application.Models;
 using Dapper;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 
 namespace CarRent.Application.Repositories;
 
 public class RatingRepository : IRatingRepository
 {
-    private const string tableName = "ratings";
-    private const string ordersTableName = "orders";
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ILogger<OrdersRepository> _logger;
 
@@ -39,7 +36,7 @@ public class RatingRepository : IRatingRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
-            select count(1) from {ordersTableName} 
+            select count(1) from {DbConstants.OrdersTableName} 
             where user_id = @userId 
             and car_id = @carId
             """, new { userId, carId }, cancellationToken: token));
@@ -49,7 +46,7 @@ public class RatingRepository : IRatingRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-                delete from {tableName}
+                delete from {DbConstants.RatingsTableName}
                 where user_id = @userId
                 and car_id = @carId
                 """, new { userId, carId }, cancellationToken: token));
@@ -61,7 +58,7 @@ public class RatingRepository : IRatingRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.QuerySingleOrDefaultAsync<float?>(new CommandDefinition($"""
-            select round(avg(r.rating), 1) from {tableName} r
+            select round(avg(r.rating), 1) from {DbConstants.RatingsTableName}
             where car_id = @carId
             """, new { carId }, cancellationToken: token));
     }
@@ -72,11 +69,11 @@ public class RatingRepository : IRatingRepository
         return await connection.QuerySingleOrDefaultAsync<(float?, int?)>(new CommandDefinition($"""
             select round(avg(rating), 1), 
                    (select rating 
-                    from {tableName} 
+                    from {DbConstants.RatingsTableName} 
                     where car_id = @carId 
                       and user_id = @userId
                     limit 1) 
-            from {tableName}
+            from {DbConstants.RatingsTableName}
             where car_id = @carId
             """, new { carId, userId }, cancellationToken: token));
     }
@@ -86,7 +83,7 @@ public class RatingRepository : IRatingRepository
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.QueryAsync(new CommandDefinition($"""
             select rating, car_id, user_id
-            from {tableName}             
+            from {DbConstants.RatingsTableName}             
             where user_id = @userId
             """, new { userId }, cancellationToken: token));
         return result.Select(r => new CarRating()

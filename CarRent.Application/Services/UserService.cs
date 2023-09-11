@@ -16,17 +16,6 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<bool> CreateAsync(User user, CancellationToken token = default)
-    {
-        await _userValidator.ValidateAndThrowAsync(user,token);
-        return await _userRepository.CreateAsync(user, token);
-    }
-
-    public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
-    {
-        return await _userRepository.DeleteByIdAsync(id, token);
-    }
-
     public async Task<IEnumerable<User>> GetAllAsync(CancellationToken token = default)
     {
         return await _userRepository.GetAllAsync(token);
@@ -34,18 +23,29 @@ public class UserService : IUserService
 
     public Task<User?> GetByIdAsync(Guid id, CancellationToken token = default)
     {
-        return _userRepository.GetByIdAsync(id,token);
+        return _userRepository.GetByIdAsync(id, token);
+    }
+
+    public async Task<bool> CreateAsync(User user, CancellationToken token = default)
+    {
+        await _userValidator.ValidateAndThrowAsync(user,token);
+        return await _userRepository.CreateAsync(user, token);
     }
 
     public async Task<User?> UpdateAsync(User user, CancellationToken token = default)
     {
         await _userValidator.ValidateAndThrowAsync(user, token);
         var exists = await _userRepository.ExistsByIdAsync(user.Id, token);
-        if (!exists) 
+        if (!exists)
         {
             return null;
         }
-        var result = await _userRepository.UpdateAsync(user,token);
+        var result = await _userRepository.UpdateAsync(user, token);
         return result ? user : null;
     }
+
+    public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
+    {
+        return await _userRepository.DeleteByIdAsync(id, token);
+    }   
 }

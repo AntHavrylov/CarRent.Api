@@ -8,7 +8,7 @@ namespace CarRent.Application.Repositories;
 
 public class OrdersRepository : IOrdersRepository
 {
-    private const string tableName = "orders";
+    
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ILogger<OrdersRepository> _logger;
 
@@ -23,7 +23,7 @@ public class OrdersRepository : IOrdersRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            delete from {tableName}
+            delete from {DbConstants.OrdersTableName}
             where id = @orderId 
             and user_id = @userId
             """, new { userId, orderId }, cancellationToken: token));
@@ -35,7 +35,7 @@ public class OrdersRepository : IOrdersRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            insert into {tableName}
+            insert into {DbConstants.OrdersTableName}
             (id,user_id,car_id,date_from,date_to)
             values
             (@Id,@UserId,@CarId,@DateFrom,@DateTo)
@@ -48,7 +48,7 @@ public class OrdersRepository : IOrdersRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            delete from {tableName}
+            delete from {DbConstants.OrdersTableName}
             where id = @id
             """, new { id }, cancellationToken: token));
         _logger.LogInformation("Order {OrderId} delete {OpResult}", id, result > 0 ? "success" : "fail");
@@ -59,7 +59,7 @@ public class OrdersRepository : IOrdersRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
-            select count(1) from {tableName}
+            select count(1) from {DbConstants.OrdersTableName}
             where 
             (car_id = @id and (
                 (date_from >= @from and date_from <= @to) or
@@ -73,7 +73,7 @@ public class OrdersRepository : IOrdersRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
-            select count(1) from {tableName} 
+            select count(1) from {DbConstants.OrdersTableName} 
             where id = @id
             """, new { id }, cancellationToken: token));
     }
@@ -82,7 +82,7 @@ public class OrdersRepository : IOrdersRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.QueryAsync<Order>(new CommandDefinition($"""
-            select * from {tableName}
+            select * from {DbConstants.OrdersTableName}
             """, cancellationToken: token));
         return result;
     }
@@ -91,7 +91,7 @@ public class OrdersRepository : IOrdersRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.QueryAsync(new CommandDefinition($"""
-            select * from {tableName}
+            select * from {DbConstants.OrdersTableName}
             where user_id = @id
             order by date_from asc
             """, new { id }, cancellationToken: token));
@@ -109,7 +109,7 @@ public class OrdersRepository : IOrdersRepository
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         var result = await connection.QuerySingleOrDefaultAsync<Order>(new CommandDefinition($"""
-            select * from {tableName}
+            select * from {DbConstants.OrdersTableName}
             where id = @id
             """, new { id }, cancellationToken: token));
         return result;
@@ -120,7 +120,7 @@ public class OrdersRepository : IOrdersRepository
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
        
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            update {tableName}
+            update {DbConstants.OrdersTableName}
             set user_id = @UserId, car_id = @CarId, date_from = @DateFrom, date_to = @DateTo            
             where id = @Id
             """, order, cancellationToken: token));
