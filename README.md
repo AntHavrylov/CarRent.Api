@@ -1,80 +1,79 @@
-# Web API Application Readme
+# Car Rent Service Web API
 
-Welcome to the documentation for our Web API application! This repository contains the codebase for a web API application that is structured into various layers and components to provide a robust and maintainable solution. Below, you will find an overview of the key components, technologies, and practices used in this project.
+Welcome to the Car Rent Service Web API! This repository houses a web API application designed to facilitate car rentals. Users can place car rental orders specifying their desired rental period and rate the cars they have rented. This README provides an overview of the application's structure and how to get started.
 
 ## Table of Contents
 
-- [Project Structure](#project-structure)
+- [Application Overview](#application-overview)
+- [Application Structure](#application-structure)
 - [Authentication and Authorization](#authentication-and-authorization)
-- [Database Access](#database-access)
-- [Validation](#validation)
-- [Unit Testing](#unit-testing)
-- [Testing the API](#testing-the-api)
-- [Dependencies](#dependencies)
+- [Database](#database)
+- [Testing](#testing)
+- [Getting Started](#getting-started)
+- [Postman Collection](#postman-collection)
+- [Docker Compose](#docker-compose)
 
-## Project Structure
+## Application Overview
 
-The project is organized into several layers, each serving a specific purpose:
+The Car Rent Service Web API application offers the following core functionalities:
 
-1. **Back.Api**: This layer represents the API endpoints and controllers responsible for handling incoming HTTP requests. It serves as the entry point for the application.
+1. **Car Rental Orders**: Users can make car rental orders by specifying the start and end date-time for the rental period.
 
-2. **Back.Application**: The Application layer contains the business logic of the application. It's responsible for processing data, applying rules, and orchestrating interactions between different components.
+2. **Car Rating**: Users can rate the cars they have rented, providing feedback on their rental experience.
 
-3. **Back.Contracts**: Contracts are used for defining request and response models. These contracts help ensure a clear and consistent communication interface between various layers of the application.
+## Application Structure
 
-4. **Identity.Api**: This internal component is responsible for generating JSON Web Tokens (JWT) used for authentication and authorization purposes.
+The application is organized into several layers to ensure maintainability and separation of concerns:
 
-5. **Back.Application.Tests**: This project contains unit tests for the services and components within the `Back.Application` layer. We use xUnit and FluentAssertion libraries for writing and running tests, along with nSubstitute for mocking dependencies.
+- **CarRent.Api**: This API layer handles incoming HTTP requests, routing them to the appropriate application layer, and returning responses to clients.
+
+- **CarRent.Application**: The application layer contains the business logic responsible for processing car rental orders and car ratings.
+
+- **CarRent.Contracts**: The contracts layer defines request and response contracts, specifying the data structures exchanged between the API and the application layer.
+
+- **Identity.Api**: This component serves as an internal JWT generator for authentication and authorization purposes.
+
+- **CarRent.Application.Tests.Unit**: This unit test project contains tests for the `CarRent.Application` services to ensure the correctness of the business logic.
 
 ## Authentication and Authorization
 
-- **JWT Bearer Authentication**: We use JSON Web Tokens (JWT) for authenticating and authorizing users. Requests to protected API endpoints must include a valid JWT token in the authorization header.
+The application uses JWT bearer authentication for securing its endpoints. Additionally, it implements two authorization policies:
 
-- **Authorization Claims**: Our application defines two main authorization claims:
-    - `Admin`: Grants full administrative privileges.
-    - `TrustedMember`: Provides access to specific trusted user features.
+- `Admin`: Users with admin privileges are authorized to perform specific actions.
+- `TrustedMember`: Trusted members are authorized for specific actions.
 
-## Database Access
+Claims are assigned to users based on their roles, granting access to particular parts of the application.
 
-- **Dapper**: We use Dapper as an Object-Relational Mapping (ORM) library to map database objects to .NET objects. It simplifies database interactions and enhances performance.
+## Database
 
-## Validation
+The application relies on a PostgreSQL database to store car rental and user data. Dapper is used for object-relational mapping (ORM), enabling efficient interaction with the database.
 
-- **FluentValidation**: To ensure data integrity and validate models, we employ FluentValidation, a popular validation library in the .NET ecosystem. It helps maintain consistency and reliability in the application's data processing.
+## Testing
 
-## Unit Testing
+For testing purposes, the application leverages the following libraries:
 
-- **xUnit and FluentAssertion**: Unit tests are crucial for maintaining code quality. We utilize xUnit as our unit testing framework and FluentAssertion to write clear and expressive test assertions. This ensures that our code is reliable and behaves as expected.
+- **xUnit**: This is the primary testing framework used for unit testing.
+- **FluentAssertions**: It provides an expressive and fluent assertion syntax for test validations.
+- **nSubstitute**: This library is used for mocking dependencies in unit tests, facilitating isolated testing of components.
 
-- **nSubstitute**: For mocking dependencies during unit testing, we use nSubstitute to isolate and test individual components independently.
+## Getting Started
 
-## Testing the API
+To run this application locally or in your own environment, follow these steps:
 
-You have two convenient options for testing the API:
+1. Clone this repository to your local machine.
 
-1. **Swagger UI**: Our application includes Swagger UI, which provides an interactive interface for exploring and testing API endpoints. To access Swagger UI, run the application and navigate to the following URL in your browser:
+2. Configure your PostgreSQL database connection string in the application settings.
 
-   ```
-   http://localhost:PORT/swagger
-   ```
+3. Build and run the application.
 
-   Replace `PORT` with the actual port number your application is running on. Swagger UI allows you to explore API endpoints, and make requests.
+4. Use a tool like Postman or a web browser to interact with the API endpoints.
 
-2. **Postman**: We have provided a Postman collection export file that contains information about API endpoints for generating JWT tokens and making requests.
+## Postman Collection
 
-   - Postman Collection File: [helpers/postman_collection.json](helpers/postman_collection.json)
+To test the APIs, a Postman collection import file can be found in the 'Helpers' folder. Import this collection into Postman to easily make API requests with authentication enabled.
 
-   This collection file simplifies the process of testing various API endpoints, including those that require authentication and authorization. You can import this collection into Postman and start testing the API immediately.
+## Docker Compose
 
-## Dependencies
+In the 'Helpers' folder, you'll also find a Docker Compose file that allows you to set up and run the PostgreSQL database needed for the application.
 
-Ensure you have the following dependencies installed and configured before running the application:
-
-- .NET SDK (version 7.0.10)
-- Visual Studio or Visual Studio Code (or your preferred IDE)
-- SQL Server (or another compatible database system)
-- Any additional dependencies listed in the project's `README` or `csproj` files.
-
-For detailed setup and usage instructions, please refer to the project-specific documentation or README files in each component's directory.
-
-Thank you for using our Web API application. If you have any questions, encounter issues, or would like to contribute, please feel free to reach out to the project maintainers. Happy coding!
+Enjoy using the Car Rent Service Web API! If you have any questions or encounter any issues, please refer to the documentation or feel free to reach out to us.
