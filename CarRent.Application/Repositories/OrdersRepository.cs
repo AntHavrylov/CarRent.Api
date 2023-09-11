@@ -118,20 +118,13 @@ public class OrdersRepository : IOrdersRepository
     public async Task<bool> UpdateAsync(Order order, CancellationToken token = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
-        var transaction = connection.BeginTransaction();
-        var deleted = await connection.ExecuteAsync(new CommandDefinition($"""
-                delete from {tableName}
-                where id = @id
-                """,
-            new { id = order.Id },
-            cancellationToken: token));
+       
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            insert into {tableName}
-            (id,user_id,car_id,date_from,date_to)
-            values
-            (@Id,@UserId,@CarId,@DateFrom,@DateTo)
+            update {tableName}
+            set user_id = @UserId, car_id = @CarId, date_from = @DateFrom, date_to = @DateTo            
+            where id = @Id
             """, order, cancellationToken: token));
-        transaction.Commit();
+
         _logger.LogInformation("Order {OrderId} update {OpResult}", order.Id, result > 0 ? "success" : "fail");
         return result > 0;
     }

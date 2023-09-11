@@ -8,6 +8,10 @@ namespace CarRent.Application.Repositories;
 public class UserRepository : IUserRepository
 {
     private const string tableName = "users";
+    private const string ordersTableName = "orders";
+    private const string ratingsTableName = "ratings";
+    
+
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ILogger<CarsRepository> _logger;
 
@@ -32,10 +36,22 @@ public class UserRepository : IUserRepository
     public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+
+        await connection.ExecuteAsync(new CommandDefinition($"""
+            delete from {ordersTableName}
+            where user_id = @id
+            """, new { id }, cancellationToken: token));
+
+        await connection.ExecuteAsync( new CommandDefinition($"""
+            delete from {ratingsTableName}
+            where user_id = @id
+            """, new {id}, cancellationToken: token));
+        
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
             delete from {tableName}
             where id = @id
             """, new { id} , cancellationToken: token));
+
         _logger.LogInformation("User {UserId} delete {OpResult}", id, result > 0 ? "success" : "fail");
         return result > 0;
     }
@@ -81,16 +97,13 @@ public class UserRepository : IUserRepository
     public async Task<bool> UpdateAsync(User user, CancellationToken token = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
-        var transaction = connection.BeginTransaction();
-        await connection.ExecuteAsync(new CommandDefinition($"""
-            delete from {tableName}
-            where id = @id
-            """, new { user.Id }, cancellationToken: token));
+                
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
-            insert into {tableName} (id,name,email)
-            values (@Id,@Name,@Email)
+            update {tableName} 
+            set name = @Name,email = @Email
+            where id = @id
             """, user , cancellationToken: token));
-        transaction.Commit();
+        
         _logger.LogInformation("User {UserId} Update {OpResult}", user.Id, result > 0 ? "success" : "fail");
         return result > 0;
     }

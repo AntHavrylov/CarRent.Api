@@ -11,7 +11,7 @@ namespace CarRent.Application.Services
     {
         Task<bool> CreateAsync(Car car, CancellationToken token = default);
 
-        Task<Car?> GetByIdAsync(Guid id, CancellationToken token = default);
+        Task<Car?> GetById(Guid id, CancellationToken token = default);
 
         Task<Car?> UpdateAsync(Car car, CancellationToken token = default);
 

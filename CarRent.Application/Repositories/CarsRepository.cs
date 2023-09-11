@@ -15,6 +15,8 @@ namespace CarRent.Application.Repositories
     public class CarsRepository : ICarsRepository
     {
         private const string tableName = "cars";
+        private const string ratingsTableName = "ratings";
+        private const string ordersTableName = "orders";
         private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly ILogger<CarsRepository> _logger;
 
@@ -42,19 +44,15 @@ namespace CarRent.Application.Repositories
         public async Task<bool> UpdateAsync(Car car, CancellationToken token = default)
         {
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
-            var transaction = connection.BeginTransaction();
-            var deleted = await connection.ExecuteAsync(new CommandDefinition($"""
-                delete from {tableName}
-                where id = @id
-                """,
-                new {id = car.Id},
-                cancellationToken: token));
+                        
             var result = await connection.ExecuteAsync(
                 new CommandDefinition($"""
-                insert into {tableName} (id, yearOfProduction, brand, model, slug, engineType, bodyType)
-                values(@Id,@YearOfProduction,@Brand, @Model, @Slug, @EngineType, @BodyType)
+                update {tableName}
+                set yearOfProduction = @YearOfProduction,brand = @Brand,
+                    model = @Model, slug = @Slug, engineType = @EngineType, bodyType = @BodyType                
+                where id = @Id
                 """, car, cancellationToken: token));
-            transaction.Commit();
+            
             _logger.LogInformation("Car '{CarSlug}' with id {CarId} update {result}",
                 car.Slug, car.Id, result > 0 ? "success" : "fail");
             return result > 0;
@@ -71,6 +69,17 @@ namespace CarRent.Application.Repositories
         public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
         {
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+
+            await connection.ExecuteAsync(new CommandDefinition($"""
+                delete from {ordersTableName}
+                where car_id = @id
+                """, new {id} , cancellationToken:token));
+
+            await connection.ExecuteAsync(new CommandDefinition($"""
+                delete from {ratingsTableName}
+                where car_id = @id
+                """, new { id }, cancellationToken: token));
+
             var result = await connection.ExecuteAsync(new CommandDefinition($"""
                 delete from {tableName}
                 where id = @id
@@ -92,9 +101,12 @@ namespace CarRent.Application.Repositories
 
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
             var result = await connection.QueryAsync(new CommandDefinition($"""
-                select * from {tableName}             
+                select c.*, round(avg(r.rating), 1) as rating
+                from {tableName} c
+                left join {ratingsTableName} r on r.car_id = c.id
                 where (@slug is null or slug like ('%' || @slug || '%')) 
                 and (@yearOfProduction is null or yearofproduction = @yearOfProduction)
+                group by id
                 {orderClause}
                 limit @pageSize
                 offset @pageOffset
@@ -113,6 +125,7 @@ namespace CarRent.Application.Repositories
                 YearOfProduction = c.yearofproduction,
                 Brand = c.brand,
                 Model = c.model,
+                rating = (float?) c.rating,
                 EngineType = (EngineType)c.enginetype,
                 BodyType = (BodyType)c.bodytype,
             });

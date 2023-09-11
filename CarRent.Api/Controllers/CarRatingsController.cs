@@ -2,6 +2,7 @@
 using CarRent.Api.Mapping;
 using CarRent.Application.Services;
 using CarRent.Contracts.Requests;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,19 +12,23 @@ namespace CarRent.Api.Controllers;
 public class CarRatingsController: ControllerBase
 {
     private readonly IRatingService _ratingService;
+    private readonly IValidator<RateCarRequest> _rateCarRequestValidator;
 
-    public CarRatingsController(IRatingService ratingService)
+    public CarRatingsController(IRatingService ratingService,
+        IValidator<RateCarRequest> rateCarRequestValidator)
     {
+        _rateCarRequestValidator = rateCarRequestValidator;
         _ratingService = ratingService;
     }
 
     [Authorize]
-    [HttpPut(ApiEndpoints.Cars.Rate)]
-    public async Task<IActionResult> RateMovie([FromRoute] Guid id,
+    [HttpPost(ApiEndpoints.Cars.Rate)]
+    public async Task<IActionResult> RateCar([FromRoute] Guid id,
         [FromBody] RateCarRequest request, CancellationToken token)
     {
+        await _rateCarRequestValidator.ValidateAndThrowAsync(request, token);
         var userId = HttpContext.GetUserId();
-        var carRating = request.MapToCarRating(userId!.Value);
+        var carRating = request.MapToCarRating(userId!.Value, id);
         var result = await _ratingService.RateCarAsync(carRating, token);
         return result ? Ok() : NotFound();
     }

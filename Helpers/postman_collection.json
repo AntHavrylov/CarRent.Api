@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "3db3a998-4a9b-4c97-8d30-ad807668615c",
-		"name": "BACK API",
+		"_postman_id": "ac7b3727-5192-4400-9409-fd510261a7c0",
+		"name": "CARRENT API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"userid\": \"d8566de3-b1a6-4a9b-b842-8e3887a82e41\",\r\n    \"email\": \"nick@nickchapsas.com\",\r\n    \"customClaims\": {\r\n         \"admin\": true,\r\n         \"trusted_member\": true\r\n    }\r\n}",
+							"raw": "{\r\n    \"userid\": \"25afc9c2-fbdc-408f-9d69-572f1fe7a7b3\",\r\n    \"email\": \"ant@gmail.com\",\r\n    \"customClaims\": {\r\n         \"admin\": true,\r\n         \"trusted_member\": false\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -39,17 +39,146 @@
 			]
 		},
 		{
-			"name": "Products",
+			"name": "Cars",
 			"item": [
 				{
-					"name": "Create product",
+					"name": "Create car",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"yearOfProduction\": 2023,\r\n  \"brand\": \"Toyota\",\r\n  \"model\": \"LandCruiser\",\r\n  \"engineType\": \"Diesel\",\r\n  \"bodyType\": \"Suv\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5001/api/cars",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"cars"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get car",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/cars/9e73dfaf-e2bb-4221-8099-330c65545f37",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"cars",
+								"9e73dfaf-e2bb-4221-8099-330c65545f37"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all cars",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/cars",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"cars"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update car",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"yearOfProduction\": 2012,\r\n    \"brand\": \"Honda\",\r\n    \"model\": \"Accord\",\r\n    \"engineType\": \"Diesel\",\r\n    \"bodyType\": \"Universal\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5001/api/cars/25afc9c2-fbdc-408f-9d69-572f1fe7a7b3",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"cars",
+								"25afc9c2-fbdc-408f-9d69-572f1fe7a7b3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete car",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/cars/9e73dfaf-e2bb-4221-8099-330c65545f37",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"cars",
+								"9e73dfaf-e2bb-4221-8099-330c65545f37"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create user",
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxZDk4OGM0OS0yMjMxLTRmZTQtYTE2MC0yY2ExYjk4MDhjYmYiLCJzdWIiOiJuaWNrQG5pY2tjaGFwc2FzLmNvbSIsImVtYWlsIjoibmlja0BuaWNrY2hhcHNhcy5jb20iLCJ1c2VyaWQiOiJkODU2NmRlMy1iMWE2LTRhOWItYjg0Mi04ZTM4ODdhODJlNDEiLCJhZG1pbiI6dHJ1ZSwidHJ1c3RlZF9tZW1iZXIiOnRydWUsIm5iZiI6MTY5MzkyNzY4OCwiZXhwIjoxNjkzOTU2NDg4LCJpYXQiOjE2OTM5Mjc2ODgsImlzcyI6Imh0dHBzOi8vaWQuYW50b25oYXZyeWxvdi5jb20iLCJhdWQiOiJodHRwczovL3Byb2R1Y3RzLmFudG9uaGF2cnlsb3YuY29tIn0.k67pDx6IPs_Cs2d4PKQluoyB2DmlaH0B9WCi2N2GpoY",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyY2RkZTM2Ny02NDM0LTQyNGMtOGMzOS1iMDI0NzQ3MGFlMjgiLCJzdWIiOiJuaWNrQG5pY2tjaGFwc2FzLmNvbSIsImVtYWlsIjoibmlja0BuaWNrY2hhcHNhcy5jb20iLCJ1c2VyaWQiOiJkODU2NmRlMy1iMWE2LTRhOWItYjg0Mi04ZTM4ODdhODJlNDEiLCJhZG1pbiI6dHJ1ZSwidHJ1c3RlZF9tZW1iZXIiOnRydWUsIm5iZiI6MTY5MzkzNDExOCwiZXhwIjoxNjkzOTYyOTE4LCJpYXQiOjE2OTM5MzQxMTgsImlzcyI6Imh0dHBzOi8vaWQuYW50b25oYXZyeWxvdi5jb20iLCJhdWQiOiJodHRwczovL3Byb2R1Y3RzLmFudG9uaGF2cnlsb3YuY29tIn0.nV1dH1zbFNp74jPSv0A8zOC4pnWmAjYP_KZvR2yjLjg",
 									"type": "string"
 								}
 							]
@@ -58,7 +187,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Name\": \"product 4\",\r\n    \"Description\": \"really good product 1\"\r\n}",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"email\": \"string\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -66,7 +195,7 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:5001/api/products",
+							"raw": "https://localhost:5001/api/users",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -74,22 +203,69 @@
 							"port": "5001",
 							"path": [
 								"api",
-								"products"
+								"users"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Get product",
+					"name": "Get user",
 					"request": {
-						"auth": {
-							"type": "noauth"
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/users/e1b2fd4e-58bf-4265-af32-1b871b824625",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"users",
+								"e1b2fd4e-58bf-4265-af32-1b871b824625"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/users",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Ant\",\r\n  \"email\": \"anton@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
-						"method": "GET",
-						"header": [],
 						"url": {
-							"raw": "https://localhost:5001/api/products/62f2df13-8f7b-4557-9001-001456e68403",
+							"raw": "https://localhost:5001/api/users/e1b2fd4e-58bf-4265-af32-1b871b824625",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -97,20 +273,75 @@
 							"port": "5001",
 							"path": [
 								"api",
-								"products",
-								"62f2df13-8f7b-4557-9001-001456e68403"
+								"users",
+								"e1b2fd4e-58bf-4265-af32-1b871b824625"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Get all products",
+					"name": "Delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/users/cbfc21ea-8289-4dab-ac5b-33114423845b",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"users",
+								"cbfc21ea-8289-4dab-ac5b-33114423845b"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"carId\": \"b08b4335-2058-4f36-aa0c-66ca4cb19e3b\",\r\n  \"dateFrom\": \"2023-09-22T09:50:03.440Z\",\r\n  \"dateTo\": \"2023-09-22T09:51:03.440Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5001/api/orders",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user orders",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://localhost:5001/api/products",
+							"raw": "https://localhost:5001/api/orders/me",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -118,14 +349,15 @@
 							"port": "5001",
 							"path": [
 								"api",
-								"products"
+								"orders",
+								"me"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Update product",
+					"name": "Update order",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -141,7 +373,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n   \"Name\":\"prrr\",\r\n   \"Description\":\"DSC\"\r\n}",
+							"raw": "{\r\n  \"carId\": \"b08b4335-2058-4f36-aa0c-66ca4cb19e3b\",\r\n  \"dateFrom\": \"2023-09-22T06:50:03.440Z\",\r\n  \"dateTo\": \"2023-09-23T06:50:03.440Z\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -149,7 +381,7 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:5001/api/products/62f2df13-8f7b-4557-9001-001456e68403",
+							"raw": "https://localhost:5001/api/orders/c04989fc-20b3-4df3-8ab9-07e67776ef89",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -157,30 +389,20 @@
 							"port": "5001",
 							"path": [
 								"api",
-								"products",
-								"62f2df13-8f7b-4557-9001-001456e68403"
+								"orders",
+								"c04989fc-20b3-4df3-8ab9-07e67776ef89"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete product",
+					"name": "Delete order",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjMWMxYjNjYy01YWZjLTQ1OTctYWU1NC1lYzQ1OGE5ZDY5OGEiLCJzdWIiOiJuaWNrQG5pY2tjaGFwc2FzLmNvbSIsImVtYWlsIjoibmlja0BuaWNrY2hhcHNhcy5jb20iLCJ1c2VyaWQiOiJkODU2NmRlMy1iMWE2LTRhOWItYjg0Mi04ZTM4ODdhODJlNDEiLCJhZG1pbiI6dHJ1ZSwidHJ1c3RlZF9tZW1iZXIiOnRydWUsIm5iZiI6MTY5MzkyODUzNiwiZXhwIjoxNjkzOTU3MzM2LCJpYXQiOjE2OTM5Mjg1MzYsImlzcyI6Imh0dHBzOi8vaWQuYW50b25oYXZyeWxvdi5jb20iLCJhdWQiOiJodHRwczovL3Byb2R1Y3RzLmFudG9uaGF2cnlsb3YuY29tIn0.Sgew21WMRHcVhl7FA4D5xTh8s67cBwX4l73ZMuvehQA",
-									"type": "string"
-								}
-							]
-						},
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "https://localhost:5001/api/products/247a058f-d963-48fb-8a76-f672b6b8cb66",
+							"raw": "https://localhost:5001/api/orders/3c123647-f26e-4c17-9dc9-11f01e98cdc8",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -188,8 +410,87 @@
 							"port": "5001",
 							"path": [
 								"api",
-								"products",
-								"247a058f-d963-48fb-8a76-f672b6b8cb66"
+								"orders",
+								"3c123647-f26e-4c17-9dc9-11f01e98cdc8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ratings",
+			"item": [
+				{
+					"name": "RateCar",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"rating\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5001/api/cars/25afc9c2-fbdc-408f-9d69-572f1fe7a7b3/ratings",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"cars",
+								"25afc9c2-fbdc-408f-9d69-572f1fe7a7b3",
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user ratings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/ratings/me",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"ratings",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user ratings",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5001/api/cars/9e73dfaf-e2bb-4221-8099-330c65545f37/ratings",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"cars",
+								"9e73dfaf-e2bb-4221-8099-330c65545f37",
+								"ratings"
 							]
 						}
 					},
@@ -203,7 +504,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhZjNlZDZjNC05NTgwLTRkZWYtYjNkNC1mY2YxZjlkYmE2ZjYiLCJzdWIiOiJuaWNrQG5pY2tjaGFwc2FzLmNvbSIsImVtYWlsIjoibmlja0BuaWNrY2hhcHNhcy5jb20iLCJ1c2VyaWQiOiJkODU2NmRlMy1iMWE2LTRhOWItYjg0Mi04ZTM4ODdhODJlNDEiLCJhZG1pbiI6ZmFsc2UsInRydXN0ZWRfbWVtYmVyIjpmYWxzZSwibmJmIjoxNjkzOTI4MzYxLCJleHAiOjE2OTM5NTcxNjEsImlhdCI6MTY5MzkyODM2MSwiaXNzIjoiaHR0cHM6Ly9pZC5hbnRvbmhhdnJ5bG92LmNvbSIsImF1ZCI6Imh0dHBzOi8vcHJvZHVjdHMuYW50b25oYXZyeWxvdi5jb20ifQ.-o1u8chMFCxq7prLgmNtc5II0slf0u1i5JBXoKTFgsE",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMjQ4Mzg5ZC01MjUwLTRjNGEtOWVkZC03MDZkNzFjMzU4MTUiLCJzdWIiOiJhbnRAZ21haWwuY29tIiwiZW1haWwiOiJhbnRAZ21haWwuY29tIiwidXNlcmlkIjoiMjVhZmM5YzItZmJkYy00MDhmLTlkNjktNTcyZjFmZTdhN2IzIiwiYWRtaW4iOnRydWUsInRydXN0ZWRfbWVtYmVyIjpmYWxzZSwibmJmIjoxNjk0NDE0NjA5LCJleHAiOjE2OTQ0NDM0MDksImlhdCI6MTY5NDQxNDYwOSwiaXNzIjoiaHR0cHM6Ly9pZC5hbnRvbmhhdnJ5bG92LmNvbSIsImF1ZCI6Imh0dHBzOi8vcHJvZHVjdHMuYW50b25oYXZyeWxvdi5jb20ifQ.56-GnmmL0gnO6Nnsutg7IyQ8Ed4iG5TH6zyLpCIieZI",
 				"type": "string"
 			}
 		]

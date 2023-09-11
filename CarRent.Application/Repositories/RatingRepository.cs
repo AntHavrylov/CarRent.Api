@@ -84,11 +84,17 @@ public class RatingRepository : IRatingRepository
     public async Task<IEnumerable<CarRating>> GetRatingsForUserAsync(Guid userId, CancellationToken token = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
-        return await connection.QueryAsync<CarRating>(new CommandDefinition($"""
+        var result = await connection.QueryAsync(new CommandDefinition($"""
             select rating, car_id, user_id
             from {tableName}             
             where user_id = @userId
             """, new { userId }, cancellationToken: token));
+        return result.Select(r => new CarRating()
+        {
+            UserId = r.user_id,
+            CarId = r.car_id,
+            Rating = r.rating,
+        });
     }
 
 

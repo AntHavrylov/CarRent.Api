@@ -1,4 +1,5 @@
-﻿using CarRent.Api.Mapping;
+﻿using CarRent.Api.Auth;
+using CarRent.Api.Mapping;
 using CarRent.Api.Validators;
 using CarRent.Application.Models;
 using CarRent.Application.Services;
@@ -28,7 +29,7 @@ namespace CarRent.Api.Controllers
 
         [Authorize(AuthConstants.TrustedMemberPolicyName)]
         [HttpPost(ApiEndpoints.Cars.Create)]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateOrUpdateCarRequest request,
+        public async Task<IActionResult> Create([FromBody] CreateOrUpdateCarRequest request,
             CancellationToken token)
         {
             await _createCarRequestValidator.ValidateAndThrowAsync(request,token);
@@ -38,12 +39,12 @@ namespace CarRent.Api.Controllers
             {
                 return Conflict();
             }
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = car.Id }, car.MapToCarResponse());
+            return CreatedAtAction(nameof(GetById), new { id = car.Id }, car.MapToCarResponse());
         }
 
         [Authorize(AuthConstants.TrustedMemberPolicyName)]
         [HttpPut(ApiEndpoints.Cars.Update)]
-        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, 
+        public async Task<IActionResult> Update([FromRoute] Guid id, 
             [FromBody] CreateOrUpdateCarRequest request, 
             CancellationToken token) 
         {
@@ -65,15 +66,15 @@ namespace CarRent.Api.Controllers
             return Ok(result.MapToCarsResponse(options.Page, options.PageSize, carsCount));
         }
 
-        [HttpGet(ApiEndpoints.Cars.Get)]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id,
+        [HttpGet(ApiEndpoints.Cars.GetById)]
+        public async Task<IActionResult> GetById([FromRoute] Guid id,
             CancellationToken token)
         {
-            var car = await _carsService.GetByIdAsync(id, token);
+            var car = await _carsService.GetById(id, token);
             return car is null ? NotFound() : Ok(car.MapToCarResponse());
         }
 
-        [Authorize(AuthConstants.AdminUserClaimName)]
+        [Authorize(AuthConstants.AdminUserPolicyName)]
         [HttpDelete(ApiEndpoints.Cars.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid id,
             CancellationToken token)

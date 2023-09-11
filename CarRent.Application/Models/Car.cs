@@ -7,6 +7,8 @@ public partial class Car
     public required Guid Id { get; init; }
     
     public required int YearOfProduction { get; init; }
+
+    public float? rating { get; init; } = 0;
     
     public required string Brand { get; init; }
 

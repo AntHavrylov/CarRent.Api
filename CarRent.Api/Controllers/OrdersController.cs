@@ -48,6 +48,19 @@ namespace CarRent.Api.Controllers
         }
 
         [Authorize]
+        [HttpPut(ApiEndpoints.Orders.Update)]
+        public async Task<IActionResult> Update([FromRoute] Guid id,
+            [FromBody]CreateOrUpdateOrderRequest request,
+            CancellationToken token)
+        {
+            await _requestValidator.ValidateAndThrowAsync(request, token);
+            var userId = HttpContext.GetUserId();
+            var order = request.MapToOrder(userId!.Value, id);
+            var updatedOrder = await _ordersService.UpdateAsync(order, token);
+            return updatedOrder is not null ? NotFound(): Ok(updatedOrder!.MapToResponse());
+        }
+
+        [Authorize]
         [HttpDelete(ApiEndpoints.Orders.CancelUserOrder)]
         public async Task<IActionResult> CancelOrder(Guid id, 
             CancellationToken token)
@@ -57,7 +70,7 @@ namespace CarRent.Api.Controllers
             return result ? Ok(result) : NotFound();
         }
 
-        [Authorize(AuthConstants.TrustedMemberClaimName)]
+        [Authorize(AuthConstants.TrustedMemberPolicyName)]
         [HttpDelete(ApiEndpoints.Orders.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid id,
             CancellationToken token)

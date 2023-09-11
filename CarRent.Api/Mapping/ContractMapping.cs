@@ -39,6 +39,7 @@ namespace CarRent.Api.Mapping
                 EngineType = car.EngineType.ToString(),
                 BodyType = car.BodyType.ToString(),
                 YearOfProduction = car.YearOfProduction,
+                Rating = car.rating ?? 0
             };
 
         public static GetAllCarsOptions MapToGetAllCarsOptions(this GetAllCarsRequest request) =>
@@ -128,11 +129,11 @@ namespace CarRent.Api.Mapping
                 Items = orders.Select(MapToResponse)
             };
 
-        public static CarRating MapToCarRating(this RateCarRequest request, Guid userId) =>
+        public static CarRating MapToCarRating(this RateCarRequest request, Guid userId, Guid carId) =>
             new()
             {
                 UserId = userId,
-                CarId = request.CarId,
+                CarId = carId,
                 Rating = request.Rating
             };
 

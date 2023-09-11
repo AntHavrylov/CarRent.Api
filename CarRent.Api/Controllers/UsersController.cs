@@ -1,4 +1,5 @@
-﻿using CarRent.Api.Mapping;
+﻿using CarRent.Api.Auth;
+using CarRent.Api.Mapping;
 using CarRent.Application.Services;
 using CarRent.Contracts.Requests;
 using FluentValidation;
@@ -36,7 +37,7 @@ namespace CarRent.Api.Controllers
             return CreatedAtAction(nameof(GetById), new { user.Id }, user.MapToResponse());
         }
 
-        [Authorize(AuthConstants.AdminUserClaimName)]
+        [Authorize(AuthConstants.AdminUserPolicyName)]
         [HttpGet(ApiEndpoints.Users.GetById)]
         public async Task<IActionResult> GetById([FromRoute] Guid id,
             CancellationToken token)
@@ -45,7 +46,7 @@ namespace CarRent.Api.Controllers
             return user is not null ? Ok(user.MapToResponse()) : NotFound();
         }
 
-        [Authorize(AuthConstants.TrustedMemberClaimName)]
+        [Authorize(AuthConstants.TrustedMemberPolicyName)]
         [HttpGet(ApiEndpoints.Users.GetAll)]
         public async Task<IActionResult> GetAll(CancellationToken token)
         {
@@ -53,7 +54,7 @@ namespace CarRent.Api.Controllers
             return Ok(users.MapToUsersResponse());
         }
 
-        [Authorize(AuthConstants.TrustedMemberClaimName)]
+        [Authorize(AuthConstants.TrustedMemberPolicyName)]
         [HttpPut(ApiEndpoints.Users.Update)]
         public async Task<IActionResult> Update([FromRoute] Guid id,
             [FromBody] CreateOrUpdateUserRequest request,
@@ -65,7 +66,7 @@ namespace CarRent.Api.Controllers
             return updatedUser is not null ? Ok(updatedUser.MapToResponse()) : NotFound();
         }
 
-        [Authorize(AuthConstants.AdminUserClaimName)]
+        [Authorize(AuthConstants.AdminUserPolicyName)]
         [HttpDelete(ApiEndpoints.Users.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid id,
             CancellationToken token)

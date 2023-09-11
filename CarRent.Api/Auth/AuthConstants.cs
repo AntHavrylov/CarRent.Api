@@ -1,4 +1,4 @@
-﻿namespace CarRent.Api;
+﻿namespace CarRent.Api.Auth;
 
 public static class AuthConstants
 {

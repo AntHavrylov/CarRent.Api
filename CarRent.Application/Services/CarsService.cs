@@ -32,7 +32,7 @@ namespace CarRent.Application.Services
             return await _carsRepository.GetAllAsync(options, token);
         }
 
-        public async Task<Car?> GetByIdAsync(Guid id, CancellationToken token = default)
+        public async Task<Car?> GetById(Guid id, CancellationToken token = default)
         {
             return await _carsRepository.GetByIdAsync(id, token);
         }

@@ -1,8 +1,8 @@
 using CarRent.Api;
+using CarRent.Api.Auth;
 using CarRent.Api.Health;
 using CarRent.Api.Mapping;
 using CarRent.Api.Swagger;
-using CarRent.Api.Validators;
 using CarRent.Application;
 using CarRent.Application.DataBase;
 using FluentValidation;

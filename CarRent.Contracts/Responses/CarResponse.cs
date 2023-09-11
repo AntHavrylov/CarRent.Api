@@ -5,6 +5,8 @@ public class CarResponse
     public required Guid Id { get; init; }
     public required int YearOfProduction { get; init; }
 
+    public float? Rating { get; init; }
+
     public required string Brand { get; init; }
 
     public required string Model { get; init; }
