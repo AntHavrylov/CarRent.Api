@@ -123,7 +123,7 @@ namespace CarRent.Application.Repositories
                 YearOfProduction = c.yearofproduction,
                 Brand = c.brand,
                 Model = c.model,
-                rating = (float?) c.rating,
+                Rating = (float?) c.rating,
                 EngineType = (EngineType)c.enginetype,
                 BodyType = (BodyType)c.bodytype,
             });

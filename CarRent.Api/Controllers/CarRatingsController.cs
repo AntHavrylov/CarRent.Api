@@ -31,7 +31,7 @@ public class CarRatingsController: ControllerBase
     {
         await _rateCarRequestValidator.ValidateAndThrowAsync(request, token);
         var userId = HttpContext.GetUserId();
-        var carRating = (request, userId, id).Adapt<CarRating>();
+        var carRating = (request, userId!.Value, id).Adapt<CarRating>();
         var result = await _ratingService.RateCarAsync(carRating, token);
         return result ? Ok(result) : NotFound();
     }

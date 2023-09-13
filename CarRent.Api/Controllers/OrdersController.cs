@@ -32,7 +32,7 @@ namespace CarRent.Api.Controllers
         {
             await _requestValidator.ValidateAndThrowAsync(request, token);
             var userId = HttpContext.GetUserId();
-            var order = (request, Guid.NewGuid(), userId).Adapt<Order>();
+            var order = (request, Guid.NewGuid(), userId!.Value).Adapt<Order>();
             var result = await _ordersService.CreateAsync(order, token);
             if (!result)
             {
@@ -47,7 +47,7 @@ namespace CarRent.Api.Controllers
         {
             var userId = HttpContext.GetUserId();
             var result = await _ordersService.GetAllByUserIdAsync(userId!.Value, token);
-            return Ok(result.Adapt<OrderResponse>());
+            return Ok(result.Adapt<IEnumerable<OrderResponse>>());
         }
 
         [Authorize]
