@@ -1,8 +1,11 @@
 ﻿using CarRent.Api.Auth;
 using CarRent.Api.Mapping;
+using CarRent.Application.Models;
 using CarRent.Application.Services;
 using CarRent.Contracts.Requests;
+using CarRent.Contracts.Responses;
 using FluentValidation;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,9 +31,9 @@ public class CarRatingsController: ControllerBase
     {
         await _rateCarRequestValidator.ValidateAndThrowAsync(request, token);
         var userId = HttpContext.GetUserId();
-        var carRating = request.MapToCarRating(userId!.Value, id);
+        var carRating = (request, userId, id).Adapt<CarRating>(MapsterConfiguration.CarRatingConfig);
         var result = await _ratingService.RateCarAsync(carRating, token);
-        return result ? Ok() : NotFound();
+        return result ? Ok(result) : NotFound();
     }
 
     [Authorize]
@@ -40,7 +43,7 @@ public class CarRatingsController: ControllerBase
     {
         var userId = HttpContext.GetUserId();
         var result = await _ratingService.DeleteRatingAsync(userId!.Value, id, token);
-        return result ? Ok() : NotFound();
+        return result ? Ok(result) : NotFound();
     }
 
     [Authorize]
@@ -49,7 +52,6 @@ public class CarRatingsController: ControllerBase
     {
         var userId = HttpContext.GetUserId();
         var ratings = await _ratingService.GetRatingsForUserAsync(userId!.Value, token);
-        var ratingsResponse = ratings.MapToCarRatingsResponse();
-        return Ok(ratingsResponse);
+        return Ok(ratings.Adapt<IEnumerable<CarRatingResponse>>());
     }
 }

@@ -4,7 +4,9 @@ using CarRent.Api.Validators;
 using CarRent.Application.Models;
 using CarRent.Application.Services;
 using CarRent.Contracts.Requests;
+using CarRent.Contracts.Responses;
 using FluentValidation;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +27,7 @@ namespace CarRent.Api.Controllers
             _carsService = carsService;
             _createCarRequestValidator = createCarRequestValidator;
             _getAllCarsRequestValidator = getAllCarsRequestValidator;
+
         }
 
         [Authorize(AuthConstants.TrustedMemberPolicyName)]
@@ -33,13 +36,15 @@ namespace CarRent.Api.Controllers
             CancellationToken token)
         {
             await _createCarRequestValidator.ValidateAndThrowAsync(request,token);
-            var car = request.MapToCar();
+
+            var car = (request,Guid.NewGuid()).Adapt<Car>(MapsterConfiguration.CreateUpdateCarConfig);
             var result = await _carsService.CreateAsync(car, token);
             if (!result)
             {
                 return Conflict();
             }
-            return CreatedAtAction(nameof(GetById), new { id = car.Id }, car.MapToCarResponse());
+            
+            return CreatedAtAction(nameof(GetById), new { id = car.Id }, car.Adapt<CarResponse>());
         }
 
         [Authorize(AuthConstants.TrustedMemberPolicyName)]
@@ -49,9 +54,10 @@ namespace CarRent.Api.Controllers
             CancellationToken token) 
         {
             await _createCarRequestValidator.ValidateAndThrowAsync(request, token);
-            var car = request.MapToCar(id);
+            var car = (request,id).Adapt<Car>(MapsterConfiguration.CreateUpdateCarConfig);
+             
             var result = await _carsService.UpdateAsync(car, token);
-            return result is not null ? Ok(result.MapToCarResponse()) : NotFound();
+            return result is not null ? Ok(result.Adapt<CarResponse>()) : NotFound();
         }
 
         [AllowAnonymous]
@@ -60,10 +66,11 @@ namespace CarRent.Api.Controllers
             CancellationToken token)
         {
             await _getAllCarsRequestValidator.ValidateAndThrowAsync(request,token);
-            var options = request.MapToGetAllCarsOptions();
+            var options = request.Adapt<GetAllCarsOptions>();
             var result = await _carsService.GetAllAsync(options, token);
             var carsCount = await _carsService.GetCountAsync(options, token);
-            return Ok(result.MapToCarsResponse(options.Page, options.PageSize, carsCount));
+            return Ok((result,options.Page, options.PageSize, carsCount)
+                .Adapt<CarsResponse>(MapsterConfiguration.CarsResponseConfig));
         }
 
         [HttpGet(ApiEndpoints.Cars.GetById)]
@@ -71,7 +78,7 @@ namespace CarRent.Api.Controllers
             CancellationToken token)
         {
             var car = await _carsService.GetById(id, token);
-            return car is null ? NotFound() : Ok(car.MapToCarResponse());
+            return car is null ? NotFound() : Ok(car.Adapt<CarResponse>());
         }
 
         [Authorize(AuthConstants.AdminUserPolicyName)]

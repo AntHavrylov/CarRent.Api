@@ -1,8 +1,11 @@
 ﻿using CarRent.Api.Auth;
 using CarRent.Api.Mapping;
+using CarRent.Application.Models;
 using CarRent.Application.Services;
 using CarRent.Contracts.Requests;
+using CarRent.Contracts.Responses;
 using FluentValidation;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +18,7 @@ namespace CarRent.Api.Controllers
         private readonly IOrdersService _ordersService;
         private readonly IValidator<CreateOrUpdateOrderRequest> _requestValidator;
 
-        public OrdersController(IOrdersService ordersService, 
+        public OrdersController(IOrdersService ordersService,
             IValidator<CreateOrUpdateOrderRequest> requestValidator)
         {
             _ordersService = ordersService;
@@ -24,18 +27,18 @@ namespace CarRent.Api.Controllers
 
         [Authorize]
         [HttpPost(ApiEndpoints.Orders.Create)]
-        public async Task<IActionResult> Create([FromBody]CreateOrUpdateOrderRequest request,
-            CancellationToken token) 
+        public async Task<IActionResult> Create([FromBody] CreateOrUpdateOrderRequest request,
+            CancellationToken token)
         {
-            await _requestValidator.ValidateAndThrowAsync(request,token);
+            await _requestValidator.ValidateAndThrowAsync(request, token);
             var userId = HttpContext.GetUserId();
-            var order = request.MapToOrder(userId!.Value);
+            var order = (request, Guid.NewGuid(), userId).Adapt<Order>(MapsterConfiguration.OrderConfig);
             var result = await _ordersService.CreateAsync(order, token);
-            if (!result) 
+            if (!result)
             {
                 return Conflict();
             }
-            return CreatedAtAction(nameof(Create), userId, order.MapToResponse());
+            return CreatedAtAction(nameof(Create), userId, order.Adapt<OrderResponse>());
         }
 
         [Authorize]
@@ -44,25 +47,25 @@ namespace CarRent.Api.Controllers
         {
             var userId = HttpContext.GetUserId();
             var result = await _ordersService.GetAllByUserIdAsync(userId!.Value, token);
-            return Ok(result.MapToResponse());
+            return Ok(result.Adapt<OrderResponse>());
         }
 
         [Authorize]
         [HttpPut(ApiEndpoints.Orders.Update)]
         public async Task<IActionResult> Update([FromRoute] Guid id,
-            [FromBody]CreateOrUpdateOrderRequest request,
+            [FromBody] CreateOrUpdateOrderRequest request,
             CancellationToken token)
         {
             await _requestValidator.ValidateAndThrowAsync(request, token);
             var userId = HttpContext.GetUserId();
-            var order = request.MapToOrder(userId!.Value, id);
+            var order = (request, id, userId).Adapt<Order>(MapsterConfiguration.OrderConfig);
             var updatedOrder = await _ordersService.UpdateAsync(order, token);
-            return updatedOrder is not null ? NotFound(): Ok(updatedOrder!.MapToResponse());
+            return updatedOrder is not null ? Ok(updatedOrder!.Adapt<OrderResponse>()) : NotFound();
         }
 
         [Authorize]
         [HttpDelete(ApiEndpoints.Orders.CancelUserOrder)]
-        public async Task<IActionResult> CancelOrder(Guid id, 
+        public async Task<IActionResult> CancelOrder(Guid id,
             CancellationToken token)
         {
             var userId = HttpContext.GetUserId();
@@ -75,7 +78,7 @@ namespace CarRent.Api.Controllers
         public async Task<IActionResult> Delete([FromRoute] Guid id,
             CancellationToken token)
         {
-            var result = await _ordersService.DeleteByIdAsync(id,token);
+            var result = await _ordersService.DeleteByIdAsync(id, token);
             return result ? Ok(result) : NotFound();
         }
 

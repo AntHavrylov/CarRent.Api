@@ -6,6 +6,7 @@ using CarRent.Contracts.Requests;
 using CarRent.Contracts.Responses;
 using FluentAssertions;
 using FluentValidation;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
@@ -34,7 +35,7 @@ public class UsersControllerTests
             Email = "TestEmail"
         };
         _userService.GetByIdAsync(user.Id).Returns(user);
-        var userResponse = user.MapToResponse();
+        var userResponse = user.Adapt<UserResponse>();
 
         // Act
         var result = (OkObjectResult)await _sut.GetById(user.Id, new CancellationToken());
@@ -68,7 +69,7 @@ public class UsersControllerTests
                 
         // Assert        
         result.StatusCode.Should().Be(200);
-        result.Value.As<UsersResponse>().Items.Should().BeEmpty();
+        result.Value.As<IEnumerable<UserResponse>>().Should().BeEmpty();
     }
 
     [Fact]
@@ -82,7 +83,7 @@ public class UsersControllerTests
             Email = "TestEmail"
         };
         var users = new[] { user };
-        var usersResponse = users.Select(x => x.MapToResponse());
+        var usersResponse = users.Select(x => x.Adapt<UserResponse>());
         _userService.GetAllAsync().Returns(users);
 
         // Act
@@ -90,7 +91,7 @@ public class UsersControllerTests
 
         // Assert
         result.StatusCode.Should().Be(200);
-        result.Value.As<UsersResponse>().Items.Should().BeEquivalentTo(usersResponse);
+        result.Value.As<IEnumerable<UserResponse>>().Should().BeEquivalentTo(usersResponse);
     }
 
 }
