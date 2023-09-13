@@ -48,7 +48,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"yearOfProduction\": 2023,\r\n  \"brand\": \"Toyota\",\r\n  \"model\": \"LandCruiser\",\r\n  \"engineType\": \"Diesel\",\r\n  \"bodyType\": \"Suv\"\r\n}",
+							"raw": "{\r\n  \"yearOfProduction\": 2023,\r\n  \"brand\": \"Toyota\",\r\n  \"model\": \"Corola\",\r\n  \"engineType\": \"Gasoline\",\r\n  \"bodyType\": \"HatchBack\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -121,7 +121,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"yearOfProduction\": 2012,\r\n    \"brand\": \"Honda\",\r\n    \"model\": \"Accord\",\r\n    \"engineType\": \"Diesel\",\r\n    \"bodyType\": \"Universal\"\r\n}",
+							"raw": "{\r\n  \"yearOfProduction\": 2016,\r\n  \"brand\": \"Toyota\",\r\n  \"model\": \"LandCruiser\",\r\n  \"engineType\": \"Diesel\",\r\n  \"bodyType\": \"Suv\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -129,7 +129,7 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:5001/api/cars/25afc9c2-fbdc-408f-9d69-572f1fe7a7b3",
+							"raw": "https://localhost:5001/api/cars/1fa63771-1973-4b33-8c29-a95390b38e75",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -138,7 +138,7 @@
 							"path": [
 								"api",
 								"cars",
-								"25afc9c2-fbdc-408f-9d69-572f1fe7a7b3"
+								"1fa63771-1973-4b33-8c29-a95390b38e75"
 							]
 						}
 					},
@@ -550,7 +550,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyOWQxZWMwNC0zYWUzLTRkMjMtOTg0ZS0wMmJlYzJmYTkxYTYiLCJzdWIiOiJhbnRAZ21haWwuY29tIiwiZW1haWwiOiJhbnRAZ21haWwuY29tIiwidXNlcmlkIjoiZTFiMmZkNGUtNThiZi00MjY1LWFmMzItMWI4NzFiODI0NjI1IiwiYWRtaW4iOnRydWUsInRydXN0ZWRfbWVtYmVyIjpmYWxzZSwibmJmIjoxNjk0NDIwMTE1LCJleHAiOjE2OTQ0NDg5MTUsImlhdCI6MTY5NDQyMDExNSwiaXNzIjoiaHR0cHM6Ly9pZC5hbnRvbmhhdnJ5bG92LmNvbSIsImF1ZCI6Imh0dHBzOi8vcHJvZHVjdHMuYW50b25oYXZyeWxvdi5jb20ifQ.SOa5L41_ULVLYlj0qwtM3sa4wPVj-hZIzI0-skn8SMg",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhYjg1NWNkNi1kMDM1LTQzNDgtYTZjMS0wMGM5OWUwMWNlNWYiLCJzdWIiOiJhbnRAZ21haWwuY29tIiwiZW1haWwiOiJhbnRAZ21haWwuY29tIiwidXNlcmlkIjoiZTFiMmZkNGUtNThiZi00MjY1LWFmMzItMWI4NzFiODI0NjI1IiwiYWRtaW4iOnRydWUsInRydXN0ZWRfbWVtYmVyIjpmYWxzZSwibmJmIjoxNjk0NjEwMjAyLCJleHAiOjE2OTQ2MzkwMDIsImlhdCI6MTY5NDYxMDIwMiwiaXNzIjoiaHR0cHM6Ly9pZC5hbnRvbmhhdnJ5bG92LmNvbSIsImF1ZCI6Imh0dHBzOi8vcHJvZHVjdHMuYW50b25oYXZyeWxvdi5jb20ifQ.ycP1CbESKEWwCvOBvwvu6xp9EttUNeSEWpq9YFTBw20",
 				"type": "string"
 			}
 		]

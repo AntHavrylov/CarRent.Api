@@ -37,7 +37,7 @@ namespace CarRent.Api.Controllers
         {
             await _createCarRequestValidator.ValidateAndThrowAsync(request,token);
 
-            var car = (request,Guid.NewGuid()).Adapt<Car>(MapsterConfiguration.CreateUpdateCarConfig);
+            var car = (request,Guid.NewGuid()).Adapt<Car>();
             var result = await _carsService.CreateAsync(car, token);
             if (!result)
             {
@@ -54,7 +54,7 @@ namespace CarRent.Api.Controllers
             CancellationToken token) 
         {
             await _createCarRequestValidator.ValidateAndThrowAsync(request, token);
-            var car = (request,id).Adapt<Car>(MapsterConfiguration.CreateUpdateCarConfig);
+            var car = (request,id).Adapt<Car>();
              
             var result = await _carsService.UpdateAsync(car, token);
             return result is not null ? Ok(result.Adapt<CarResponse>()) : NotFound();
@@ -70,7 +70,7 @@ namespace CarRent.Api.Controllers
             var result = await _carsService.GetAllAsync(options, token);
             var carsCount = await _carsService.GetCountAsync(options, token);
             return Ok((result,options.Page, options.PageSize, carsCount)
-                .Adapt<CarsResponse>(MapsterConfiguration.CarsResponseConfig));
+                .Adapt<CarsResponse>());
         }
 
         [HttpGet(ApiEndpoints.Cars.GetById)]

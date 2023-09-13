@@ -47,6 +47,7 @@ builder.Services.AddAuthorization(x =>
         c.User.HasClaim(m => m is { Type: AuthConstants.TrustedMemberClaimName, Value: "true" })));
 });
 
+builder.Services.AddSingleton<MapsterConfiguration>();
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>(DatabaseHealthCheck.Name);
@@ -81,5 +82,7 @@ app.MapControllers();
 
 var dbInitializer = app.Services.GetRequiredService<DbInitializer>();
 await dbInitializer.InitializeAsync();
+
+var mapsterConfiguration = app.Services.GetRequiredService(typeof(MapsterConfiguration));
 
 app.Run();

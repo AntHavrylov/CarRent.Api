@@ -31,7 +31,7 @@ namespace CarRent.Api.Controllers
             CancellationToken token)
         {
             await _userRequestValidator.ValidateAndThrowAsync(request, token);
-            var user = (request,Guid.NewGuid()).Adapt<User>(MapsterConfiguration.UserConfig);
+            var user = (request,Guid.NewGuid()).Adapt<User>();
             var result = await _userService.CreateAsync(user, token);
             if (!result)
             {
@@ -64,7 +64,7 @@ namespace CarRent.Api.Controllers
             CancellationToken token)
         {
             await _userRequestValidator.ValidateAndThrowAsync(request, token);
-            var user = (request,id).Adapt<User>(MapsterConfiguration.UserConfig);
+            var user = (request,id).Adapt<User>();
             var updatedUser = await _userService.UpdateAsync(user, token);
             return updatedUser is not null ? Ok(updatedUser.Adapt<UserResponse>()) : NotFound();
         }

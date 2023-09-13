@@ -32,7 +32,7 @@ namespace CarRent.Api.Controllers
         {
             await _requestValidator.ValidateAndThrowAsync(request, token);
             var userId = HttpContext.GetUserId();
-            var order = (request, Guid.NewGuid(), userId).Adapt<Order>(MapsterConfiguration.OrderConfig);
+            var order = (request, Guid.NewGuid(), userId).Adapt<Order>();
             var result = await _ordersService.CreateAsync(order, token);
             if (!result)
             {
@@ -58,7 +58,7 @@ namespace CarRent.Api.Controllers
         {
             await _requestValidator.ValidateAndThrowAsync(request, token);
             var userId = HttpContext.GetUserId();
-            var order = (request, id, userId).Adapt<Order>(MapsterConfiguration.OrderConfig);
+            var order = (request, id, userId).Adapt<Order>();
             var updatedOrder = await _ordersService.UpdateAsync(order, token);
             return updatedOrder is not null ? Ok(updatedOrder!.Adapt<OrderResponse>()) : NotFound();
         }
