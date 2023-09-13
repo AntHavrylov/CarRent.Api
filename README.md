@@ -48,7 +48,7 @@ Users are granted claims corresponding to their roles, allowing access to specif
 
 ## Database
 
-The application relies on a PostgreSQL database to store car rental and user data. Dapper is utilized for object-relational mapping (ORM), ensuring efficient interaction with the database.
+The application relies on a PostgreSQL database to store car rental and user data. Dapper is utilized for object-relational mapping (ORM), ensuring efficient interaction with the database. **Mapster** is also used as an automapping tool to streamline data mapping processes.
 
 ## Testing
 
