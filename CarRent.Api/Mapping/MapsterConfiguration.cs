@@ -32,8 +32,5 @@ public class MapsterConfiguration
         TypeAdapterConfig.GlobalSettings.NewConfig<(CreateOrUpdateUserRequest request, Guid id), User>()
             .Map(dest => dest, source => source.request)
             .Map(dest => dest.Id, source => source.id);
-
-        
-
     }
 }

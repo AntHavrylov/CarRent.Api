@@ -15,8 +15,7 @@ public class MapsterTests
         CreateOrUpdateOrderRequest request,
         Guid userId,
         Guid orderId,
-        Order expected
-        ) 
+        Order expected) 
     {
         // Arrange
         TypeAdapterConfig.GlobalSettings.NewConfig<(CreateOrUpdateOrderRequest request, Guid id, Guid UserId), Order>()
