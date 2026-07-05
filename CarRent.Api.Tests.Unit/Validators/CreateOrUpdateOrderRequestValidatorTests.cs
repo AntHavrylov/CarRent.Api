@@ -24,13 +24,13 @@ public class CreateOrUpdateOrderRequestValidatorTests
     public async Task ValidateAndThrowAsync_ShouldNotThrowValidationException_WhenRequestIsComplete()
     {
         // Complete request is:
-        // DateFrom - DateTime Greater than DateTime.Now
+        // DateFrom - DateTime Greater than DateTime.UtcNow
         // DateTo - Greater than DateFrom
         // There is car in db with corresponding guid CarId
         // The period doesn't overlap other orders with current car
 
         // Arrange 
-        var DateFrom = DateTime.Now;
+        var DateFrom = DateTime.UtcNow;
         var request = new CreateOrUpdateOrderRequest()
         {
             DateFrom = DateFrom,
@@ -52,7 +52,7 @@ public class CreateOrUpdateOrderRequestValidatorTests
     public async Task ValidateAndThrowAsync_ShouldThrowValidationException_WhenDateFromIsLessThanDateTimeNow() 
     {
         // Arrange 
-        var DateFrom = DateTime.Now;
+        var DateFrom = DateTime.UtcNow;
         var request = new CreateOrUpdateOrderRequest()
         {
             DateFrom = DateFrom.AddDays(-1),
@@ -75,7 +75,7 @@ public class CreateOrUpdateOrderRequestValidatorTests
     public async Task ValidateAndThrowAsync_ShouldThrowValidationException_WhenDateFromIsGreaterThanDateTo()
     {
         // Arrange 
-        var DateFrom = DateTime.Now;        
+        var DateFrom = DateTime.UtcNow;        
         var request = new CreateOrUpdateOrderRequest()
         {
             DateFrom = DateFrom,
@@ -97,7 +97,7 @@ public class CreateOrUpdateOrderRequestValidatorTests
     public async Task ValidateAndThrowAsync_ShouldThrowValidationException_WhenOrderDateIsOverlappedWithExistsOrder()
     {
         // Arrange 
-        var DateFrom = DateTime.Now;
+        var DateFrom = DateTime.UtcNow;
         var request = new CreateOrUpdateOrderRequest()
         {
             DateFrom = DateFrom,
@@ -119,7 +119,7 @@ public class CreateOrUpdateOrderRequestValidatorTests
     public async Task ValidateAndThrowAsync_ShouldThrowValidationException_WhenCarNotExists()
     {
         // Arrange 
-        var DateFrom = DateTime.Now;
+        var DateFrom = DateTime.UtcNow;
         var request = new CreateOrUpdateOrderRequest()
         {
             DateFrom = DateFrom,

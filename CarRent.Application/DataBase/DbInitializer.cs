@@ -51,6 +51,26 @@ public class DbInitializer
         """);
 
         await connection.ExecuteAsync("""
+            create index if not exists ix_cars_slug on cars(slug);
+            """);
+
+        await connection.ExecuteAsync("""
+            create index if not exists ix_cars_yearofproduction on cars(yearofproduction);
+            """);
+
+        await connection.ExecuteAsync("""
+            create index if not exists ix_orders_user_id on orders(user_id);
+            """);
+
+        await connection.ExecuteAsync("""
+            create index if not exists ix_users_email on users(email);
+            """);
+
+        await connection.ExecuteAsync("""
+            create index if not exists ix_ratings_car_id on ratings(car_id);
+            """);
+
+        await connection.ExecuteAsync("""
             insert into cars (id,yearOfProduction,brand,model,slug,engineType,bodyType)
             values ('25afc9c2-fbdc-408f-9d69-572f1fe7a7b3',2011,'Honda','Accord','honda-accord-2021',1,2)
             ON CONFLICT (id) DO NOTHING;

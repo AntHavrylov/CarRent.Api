@@ -10,15 +10,21 @@ namespace Identity.Api.Controllers;
 [ApiController]
 public class IdentityController : ControllerBase
 {
-    private const string TokenSecret = "ForTheLoveOfGodStoreAndLoadThisSecurely";
     private static readonly TimeSpan TokenLifetime = TimeSpan.FromHours(8);
+
+    private readonly IConfiguration _configuration;
+
+    public IdentityController(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
 
     [HttpPost("token")]
     public IActionResult GenerateToken(
         [FromBody]TokenGenerationRequest request)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(TokenSecret);
+        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
 
         var claims = new List<Claim>
         {
@@ -47,8 +53,8 @@ public class IdentityController : ControllerBase
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.Add(TokenLifetime),
-            Issuer = "https://id.antonhavrylov.com",
-            Audience = "https://products.antonhavrylov.com",
+            Issuer = _configuration["Jwt:Issuer"],
+            Audience = _configuration["Jwt:Audience"],
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         

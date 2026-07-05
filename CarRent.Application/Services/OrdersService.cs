@@ -45,8 +45,8 @@ public class OrdersService : IOrdersService
 
     public async Task<Order?> UpdateAsync(Order order, CancellationToken token = default)
     {
-        var exists = await _ordersRepository.ExistsByIdAsync(order.Id, token);
-        if(!exists) 
+        var existingOrder = await _ordersRepository.GetByIdAsync(order.Id, token);
+        if (existingOrder is null || existingOrder.UserId != order.UserId)
         {
             return null;
         }

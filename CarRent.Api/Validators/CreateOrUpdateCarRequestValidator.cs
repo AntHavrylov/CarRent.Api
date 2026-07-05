@@ -4,12 +4,12 @@ using FluentValidation;
 
 namespace CarRent.Api.Validators;
 
-public class CreateOrUpdateCatRequestValidator : AbstractValidator<CreateOrUpdateCarRequest>
+public class CreateOrUpdateCarRequestValidator : AbstractValidator<CreateOrUpdateCarRequest>
 {
     private static readonly string[] AcceptableEngineTypes = Enum.GetNames(typeof(EngineType));
     private static readonly string[] AcceptableBodyTypes = Enum.GetNames(typeof(BodyType));
 
-    public CreateOrUpdateCatRequestValidator()
+    public CreateOrUpdateCarRequestValidator()
     {
         RuleFor(x => x.Model)
             .NotEmpty();

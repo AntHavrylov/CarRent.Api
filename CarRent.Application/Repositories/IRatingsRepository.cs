@@ -14,5 +14,5 @@ public interface IRatingsRepository
 
     Task<IEnumerable<CarRating>> GetRatingsForUserAsync(Guid userId, CancellationToken token = default);
 
-    Task<bool> ExistsCarRatingForUser(Guid userId, Guid carId, CancellationToken token = default);
+    Task<bool> HasOrderForCarAsync(Guid userId, Guid carId, CancellationToken token = default);
 }

@@ -13,7 +13,7 @@ public class CreateOrUpdateCarRequestValidatorTests
 
     public CreateOrUpdateCarRequestValidatorTests()
     {
-        _sut = new CreateOrUpdateCatRequestValidator();
+        _sut = new CreateOrUpdateCarRequestValidator();
     }
 
     [Fact]

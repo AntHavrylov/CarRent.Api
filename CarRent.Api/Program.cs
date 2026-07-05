@@ -72,6 +72,20 @@ if (app.Environment.IsDevelopment())
 
 app.MapHealthChecks("_health");
 
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/problem+json";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            status = StatusCodes.Status500InternalServerError,
+            title = "An unexpected error occurred."
+        });
+    });
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

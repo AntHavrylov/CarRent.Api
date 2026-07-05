@@ -9,7 +9,7 @@ public class CreateRatingValidator : AbstractValidator<CarRating>
     private readonly IRatingsRepository _ratingRepository;
       
 
-    public CreateRatingValidator(IRatingsRepository ratingRepository,CancellationToken token = default)
+    public CreateRatingValidator(IRatingsRepository ratingRepository)
     {
         _ratingRepository = ratingRepository;
         RuleFor(x => x)
@@ -22,7 +22,7 @@ public class CreateRatingValidator : AbstractValidator<CarRating>
     }
 
     private async Task<bool> OrderExistsAsync(Guid userId, Guid carId, CancellationToken token = default) =>
-        await _ratingRepository.ExistsCarRatingForUser(userId,carId, token);
+        await _ratingRepository.HasOrderForCarAsync(userId,carId, token);
 
 
 }

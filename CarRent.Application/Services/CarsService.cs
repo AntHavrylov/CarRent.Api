@@ -1,5 +1,6 @@
 ﻿using CarRent.Application.Models;
 using CarRent.Application.Repositories;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,17 @@ namespace CarRent.Application.Services
     public class CarsService : ICarsService
     {
         private readonly ICarsRepository _carsRepository;
+        private readonly IValidator<Car> _carValidator;
 
-        public CarsService(ICarsRepository carsRepository)
+        public CarsService(ICarsRepository carsRepository, IValidator<Car> carValidator)
         {
             _carsRepository = carsRepository;
+            _carValidator = carValidator;
         }
 
         public async Task<bool> CreateAsync(Car car, CancellationToken token = default)
         {
+            await _carValidator.ValidateAndThrowAsync(car, token);
             return await _carsRepository.CreateAsync(car, token);
         }
 
@@ -44,8 +48,9 @@ namespace CarRent.Application.Services
 
         public async Task<Car?> UpdateAsync(Car car, CancellationToken token = default)
         {
-            var exists = await _carsRepository.ExistsByIdAsync(car.Id, token);    
-            if(!exists) 
+            await _carValidator.ValidateAndThrowAsync(car, token);
+            var exists = await _carsRepository.ExistsByIdAsync(car.Id, token);
+            if(!exists)
             {
                 return null;
             }

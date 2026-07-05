@@ -8,7 +8,7 @@ public class CreateUserValidator : AbstractValidator<User>
 {
     private readonly IUsersRepository _userRepository;
 
-    public CreateUserValidator(IUsersRepository userRepository, CancellationToken token = default)
+    public CreateUserValidator(IUsersRepository userRepository)
     {
         _userRepository = userRepository;
         RuleFor(x => x)
