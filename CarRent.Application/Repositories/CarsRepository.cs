@@ -87,13 +87,31 @@ namespace CarRent.Application.Repositories
             return result > 0;
         }
 
+        private static readonly Dictionary<string, string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["id"] = "id",
+            ["yearofproduction"] = "yearofproduction",
+            ["brand"] = "brand",
+            ["model"] = "model",
+            ["slug"] = "slug",
+            ["enginetype"] = "enginetype",
+            ["bodytype"] = "bodytype",
+            ["rating"] = "rating",
+        };
+
+        public static string? ResolveSortColumn(string? sortField) =>
+            sortField is not null && AllowedSortColumns.TryGetValue(sortField, out var column)
+                ? column
+                : null;
+
         public async Task<IEnumerable<Car>> GetAllAsync(GetAllCarsOptions options, CancellationToken token = default)
         {
             var orderClause = string.Empty;
-            if (options.SortField is not null)
+            var sortColumn = ResolveSortColumn(options.SortField);
+            if (sortColumn is not null)
             {
                 orderClause = $"""
-                    order by {options.SortField} {(options.SortOrder == SortOrder.Ascending ? "asc" : "desc")}
+                    order by {sortColumn} {(options.SortOrder == SortOrder.Ascending ? "asc" : "desc")}
                     """;
             }
 
@@ -133,7 +151,7 @@ namespace CarRent.Application.Repositories
         {
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);                   
 
-            var result = await connection.QuerySingleAsync<Car>(new CommandDefinition($"""
+            var result = await connection.QuerySingleOrDefaultAsync<Car>(new CommandDefinition($"""
                 select * from {DbConstants.CarsTableName}
                 where id = @id
                 """

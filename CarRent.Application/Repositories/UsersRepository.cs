@@ -80,7 +80,7 @@ public class UsersRepository : IUsersRepository
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken token = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
-        var result = await connection.QuerySingleAsync<User>(new CommandDefinition($"""
+        var result = await connection.QuerySingleOrDefaultAsync<User>(new CommandDefinition($"""
             select * from {DbConstants.UsersTableName}
             where id = @id
             """, new { id }, cancellationToken: token));

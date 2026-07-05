@@ -41,6 +41,11 @@ than guessed silently):**
   quietly expanding scope inside one commit.
 - If you deviate from this plan (skip something, descope something, reorder something), say so
   in chat and update this file to match — don't let the file silently go stale.
+- **Do not run `git commit` between phases without the user reviewing first** (added after Phase
+  1: the user wants to review the diff before each commit, not just before the branch is
+  pushed). Do the work, do the self-review/`/verify` checkpoint, leave changes staged/unstaged in
+  the working tree, and stop for the user's review before committing — do not batch multiple
+  phases' work into one commit either; each phase is still its own commit once approved.
 
 ## Project Summary
 
@@ -217,27 +222,46 @@ category of naming cleanup.
       note:** none found — no other behavior changed.
 
 ### Phase 2 — High-severity fixes
-- [ ] Fix the order-update IDOR: in `OrdersService.UpdateAsync`
-      (`CarRent.Application/Services/OrdersService.cs:46-55`), fetch the existing order via
-      `GetByIdAsync` first and return `null` if `existingOrder.UserId != order.UserId`, before
-      calling `UpdateAsync` — mirroring the ownership check `CancelAsync` already does correctly.
-      Add a unit test on `OrdersService` covering both the "not your order" rejection and the
-      happy-path update. (REVIEW #3)
-- [ ] Fix `CarsRepository.GetByIdAsync` and `UsersRepository.GetByIdAsync` to use
+- [x] Fixed the order-update IDOR: `OrdersService.UpdateAsync` now fetches the existing order via
+      `GetByIdAsync` and returns `null` if it doesn't exist or `existingOrder.UserId !=
+      order.UserId`, mirroring `CancelAsync`'s existing correct ownership check (previously it
+      only checked `ExistsByIdAsync`, with no ownership check at all). Added
+      `CarRent.Application.Tests.Unit/Services/OrdersServiceTests.cs` covering: rejection when the
+      order belongs to another user, rejection when it doesn't exist, and the happy path when the
+      caller owns it. (REVIEW #3)
+- [x] Fixed `CarsRepository.GetByIdAsync` and `UsersRepository.GetByIdAsync` to use
       `QuerySingleOrDefaultAsync` instead of `QuerySingleAsync`, matching
-      `OrdersRepository.GetByIdAsync`'s existing correct pattern. (REVIEW #4)
-- [ ] Add a catch-all exception-handling middleware (e.g. `app.UseExceptionHandler(...)` mapping
-      unhandled exceptions to a generic `500` `ProblemDetails` response) registered in
-      `Program.cs` alongside the existing `ValidationMappingMiddleware`, so any future unhandled
-      exception degrades gracefully instead of leaking internals. (REVIEW #4)
-- [ ] Whitelist `GetAllCarsOptions.SortField` in `CarsRepository.GetAllAsync` against a fixed set
-      of known column names (e.g. a `switch` mapping an allowed set of strings to the literal
-      column name, defaulting to no `order by` clause or throwing a validation error for anything
-      unrecognized) instead of interpolating the raw value into the SQL string. Add a repository-
-      or service-level test asserting an unrecognized/malicious `SortField` value does not reach
-      the SQL string unescaped. (REVIEW #5)
+      `OrdersRepository.GetByIdAsync`'s existing correct pattern — a lookup by a nonexistent id now
+      returns `null` instead of throwing `InvalidOperationException`. (REVIEW #4)
+- [x] Added a catch-all exception-handling middleware in `Program.cs` via
+      `app.UseExceptionHandler(...)`, placed right after `MapHealthChecks` (wrapping
+      `UseHttpsRedirection`/`UseAuthentication`/`UseAuthorization`/`ValidationMappingMiddleware`/
+      `MapControllers`) so `ValidationMappingMiddleware` still gets first crack at
+      `FluentValidation.ValidationException` and only genuinely unhandled exceptions fall through
+      to the generic 500 JSON response. (REVIEW #4)
+- [x] Whitelisted `GetAllCarsOptions.SortField` in `CarsRepository.GetAllAsync`: extracted a
+      `public static string? ResolveSortColumn(string? sortField)` method backed by a fixed
+      `Dictionary<string,string>` of known columns (`id`, `yearofproduction`, `brand`, `model`,
+      `slug`, `enginetype`, `bodytype`, `rating`), returning `null` (→ no `order by` clause) for
+      anything not on the list, instead of interpolating the raw value into SQL text. Made it a
+      testable pure function (no DB dependency) since this repository has no existing
+      integration-test infrastructure to exercise the real query. Added
+      `CarRent.Application.Tests.Unit/Repositories/CarsRepositoryTests.cs` covering known fields
+      (case-insensitive), `null`, and unrecognized/malicious input (including a `"; drop table
+      cars;--"`-style payload) all resolving to `null`. (REVIEW #5)
 - [x] ~~Retarget to net8.0~~ — done in Phase 0 (moved up; see deviation note there). (REVIEW #6)
-- [ ] Self-review + `/verify` on Phase 2 changes
+- [x] Self-review + `/verify` on Phase 2 changes: `dotnet build` clean (5 pre-existing warnings,
+      same set as baseline, 0 errors); `dotnet test` — **34/34 passing** (22 baseline + 12 new: 3
+      `OrdersServiceTests` + 9 `CarsRepositoryTests`), 0 failed, 0 skipped. Read through the full
+      diff: `OrdersService.UpdateAsync` change is a 3-line ownership check, no other logic
+      touched; the two `QuerySingleAsync`→`QuerySingleOrDefaultAsync` swaps are one-line
+      each and don't change the method signatures (`Car?`/`User?` return types were already
+      nullable); the exception-handler is additive middleware with no changes to existing
+      middleware ordering relative to each other; `ResolveSortColumn` is a pure addition that
+      only replaces where `options.SortField` is read from (`sortColumn` instead of the raw
+      value) — no other behavior in `GetAllAsync` changed. **Regression note:** none found. This
+      work is NOT yet committed — holding for user review per the updated Execution Contract
+      (review-before-commit, not just review-before-push).
 
 ### Phase 3 — Medium/Low fixes
 - [ ] Wrap the three sequential deletes in `CarsRepository.DeleteByIdAsync` and
