@@ -320,18 +320,45 @@ category of naming cleanup.
 *(none — no new features were requested for this pass; skipped per the Non-Goals section above)*
 
 ### Phase 5 — Tests & verification
-- [ ] Add controller-level tests for `CarsController`, `OrdersController`, and
-      `CarRatingsController` (currently zero coverage per `REVIEW_REPORT.md`'s test-coverage
-      snapshot), at minimum covering the paths touched in this plan: order update
-      ownership-rejection (#3), car/user `GetById` not-found (#4), and car list sort/pagination
-      bounds (#5, #8)
-- [ ] Add service-level tests for `CarsService` and `UsersService` `UpdateAsync` not-found paths
-      (currently untested, same gap class as the `OrdersService` bug in #3)
-- [ ] Full suite passes end to end: `dotnet test` from the solution root
-- [ ] Manually exercise the golden path (and key edge cases) per the `/verify` skill: create a
-      car/user, create an order as one user, attempt to update another user's order and confirm
-      it's rejected, look up a nonexistent car/user id and confirm a clean 404, hit the cars list
-      with `page=0` and an oversized `pageSize` and confirm validation errors instead of a 500
+- [x] **New finding discovered and fixed during this phase (REVIEW #16, added to
+      `REVIEW_REPORT.md`):** while writing `OrdersController` tests, found that `Update` builds
+      its Mapster tuple as `(request, id, userId)` with `userId: Guid?`, but
+      `MapsterConfiguration` only registers the tuple shape with a non-nullable `Guid` (what
+      `Create` uses) — a distinct, unregistered closed generic type. Confirmed empirically with a
+      throwaway probe test (written, run, and deleted — not part of the permanent suite) that
+      this silently zeroes `CarId`/`DateFrom`/`DateTo` on every order update via Mapster's default
+      fallback convention, while `Id`/`UserId` still map correctly by name. This was outside the
+      original 15 findings; **checked with the user before fixing** — approved to fix now rather
+      than only log it. Fixed by making `Update` build the same tuple shape as `Create`
+      (`userId!.Value` instead of `userId`) in `OrdersController.cs`. Covered by a dedicated
+      regression test (`Update_ShouldMapCarIdAndDatesCorrectly_WhenCallerOwnsTheOrder`) asserting
+      every field on the captured `Order` matches the request.
+- [x] Added controller-level tests for `CarsController` (`CarsControllerTests.cs`: `GetById`
+      not-found (#4) and found, `GetAll` happy path touching sort/pagination options (#5, #8),
+      `Update` not-found), `OrdersController` (`OrdersControllerTests.cs`: ownership-rejection
+      not-found (#3), the #16 mapping regression test above, `Create`, `CancelOrder`
+      not-found), and `CarRatingsController` (`CarRatingsControllerTests.cs`: `RateCar`
+      ok/not-found, `DeleteRating` not-found) — all three had zero coverage per
+      `REVIEW_REPORT.md`'s test-coverage snapshot.
+- [x] Added service-level tests for `CarsService` (`CarsServiceTests.cs`) and `UsersService`
+      (`UsersServiceTests.cs`) covering `UpdateAsync`'s not-found and happy paths — the same gap
+      class as the `OrdersService` ownership bug in #3, now closed for all three services.
+- [x] Full suite passes end to end: `dotnet test` — **60/60 passing** (45 from Phase 3 + 15 new:
+      4 service tests — 2 `CarsServiceTests` + 2 `UsersServiceTests` — plus 11 controller tests —
+      4 `CarsControllerTests` + 4 `OrdersControllerTests` + 3 `CarRatingsControllerTests`), 0
+      failed, 0 skipped.
+- [x] Manual golden-path exercise: **could not be run against a live HTTP server** — this sandbox
+      has no Postgres instance, and `DbInitializer.InitializeAsync()` runs eagerly at startup
+      before any endpoint is reachable, so `dotnet run` cannot get past that point (confirmed in
+      every phase's self-review: it fails with `Npgsql...Connection refused`, not a code defect).
+      Saying this explicitly rather than claiming a live-server exercise that didn't happen. The
+      specific scenarios the plan asked for are instead covered by the unit tests added this
+      phase: cross-user order update rejection
+      (`Update_ShouldReturnNotFound_WhenOrderBelongsToAnotherUser`), nonexistent car/user id → 404
+      (`CarsControllerTests.GetById_ShouldReturnNotFound_WhenCarDoesNotExist`, existing
+      `UsersControllerTests.GetById_ReturnNotFound_WhenUserDoesntExists`), and pagination bounds
+      (`GetAllCarsRequestValidatorTests`, Phase 3) — each exercises the real validator/service/
+      controller code path, just not over a live socket.
 
 ### Phase 6 — Wrap-up
 - [ ] Run `/wrap-up`
