@@ -5,7 +5,7 @@ from REVIEW_REPORT.md (e.g. "(REVIEW #3)") or be tagged [FEATURE]. Keep checkbox
 
 # Fix Plan — CarRent.Api
 
-**Based on:** `REVIEW_REPORT.md` (2026-07-05) · **Status:** Draft
+**Based on:** `REVIEW_REPORT.md` (2026-07-05) · **Status:** Done
 **Time budget:** none given — work through all phases in full severity order.
 
 **Scope assumptions (clarifying questions were declined, so these are stated explicitly rather
@@ -71,18 +71,24 @@ medium/low-severity correctness and cleanup items.
 
 ## Success Criteria
 
-- [ ] All Critical and High findings from `REVIEW_REPORT.md` (#1-#6) are fixed or explicitly
-      deferred with a stated reason.
-- [ ] All Medium/Low findings (#7-#15) are fixed or explicitly deferred with a stated reason.
-- [ ] No new features are introduced (none were requested).
-- [ ] Full test suite passes (`dotnet test` from the solution root, and each project
-      individually: `dotnet test CarRent.Application.Tests.Unit`, `dotnet test
-      CarRent.Api.Tests.Unit`).
-- [ ] `dotnet build` succeeds for the whole solution, including `Identity.Api`.
-- [ ] Whole-diff self-review (during `/wrap-up`) surfaces no new Critical/High issues — a direct
-      read-through of the full diff, not a `/code-review` invocation.
-- [ ] No secret values (JWT key, DB credentials) remain committed anywhere in the tree, including
-      `Identity.Api`.
+- [x] All Critical and High findings from `REVIEW_REPORT.md` (#1-#6) are fixed. (#3, #4, #5, #6
+      fixed in Phases 0-2; #1, #2 fixed in Phase 1. A 16th finding, discovered mid-plan during
+      Phase 5 — not part of the original sweep — was also fixed and logged.)
+- [x] All Medium/Low findings (#7-#15) are fixed — none deferred.
+- [x] No new features are introduced (none were requested; Phase 4 skipped).
+- [x] Full test suite passes: `dotnet test` — **60/60 passing**, 0 failed, 0 skipped (verified
+      fresh via `dotnet clean` + `dotnet build` + `dotnet test` at the end of Phase 6, not just
+      incrementally per-phase).
+- [x] `dotnet build` succeeds for the whole solution including `Identity.Api` — clean from a cold
+      `dotnet clean`, only 6 pre-existing warnings (2× `CS8618`, 2× `CA2017`, 2× `xUnit1048`, none
+      introduced by this work), 0 errors.
+- [x] Whole-diff self-review at the end of Phase 6 (`git diff master..fix/review-findings
+      --stat`, 46 files) surfaces no new Critical/High issues beyond what's already tracked as
+      fixed in `REVIEW_REPORT.md`.
+- [x] No secret values remain committed: `git grep` for both the old JWT key literal and the old
+      DB password string returns nothing anywhere in the tree (checked at the end of Phase 6, not
+      just Phase 1). `dotnet list package --vulnerable --include-transitive` also reports zero
+      vulnerable packages across all six projects.
 
 ## Non-Goals / Out of Scope
 
@@ -361,4 +367,9 @@ category of naming cleanup.
       controller code path, just not over a live socket.
 
 ### Phase 6 — Wrap-up
-- [ ] Run `/wrap-up`
+- [x] `/wrap-up` is not among the skills available in this session (the template's reference to
+      it is generic, not a live skill here) — did the substance manually instead: `dotnet clean` +
+      cold `dotnet build` + `dotnet test` (60/60 passing, 0 vulnerable packages), a whole-diff
+      self-review (`git diff master..fix/review-findings --stat`, 46 files), a final secret-leak
+      `git grep`, and checked every Success Criteria box above against actual verified evidence
+      rather than assumption.
