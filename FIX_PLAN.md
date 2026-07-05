@@ -147,9 +147,43 @@ category of naming cleanup.
 ## Plan
 
 ### Phase 0 — Setup
-- [ ] Create working branch: `fix/review-findings`
-- [ ] Confirm `dotnet build` succeeds and record baseline `dotnet test` pass/fail counts on the
-      starting commit (master @ `d4b4636`)
+- [x] Create working branch: `fix/review-findings` (branched off `code-review-with-claude` @
+      `d90205a`, which already carried the doc-only commits adding `REVIEW_REPORT.md`/
+      `FIX_PLAN.md` on top of `master` @ `d4b4636` — not off `master` directly, since those docs
+      were already committed there before this execution pass started)
+- [x] Confirm `dotnet build` succeeds — it does (12 warnings, 0 errors), and the warnings already
+      independently confirm REVIEW #6: `NU1903` (Npgsql 7.0.4, high-severity CVE) and `NU1902`
+      (System.IdentityModel.Tokens.Jwt 6.26.1, moderate CVE), plus the SDK's own
+      `NETSDK1138` EOL-framework warning on every `net7.0` project.
+- [x] **Deviation, stated per the Execution Contract:** `dotnet test` cannot run at all in this
+      environment — only the .NET 8 runtime is installed (no .NET 7 runtime), so every test host
+      fails immediately with "You must install or update .NET to run this application." There is
+      no baseline pass/fail count to record on `net7.0` in this sandbox. Since every later phase's
+      checkpoint depends on being able to run tests, **REVIEW #6 (retarget to `net8.0`) is moved
+      up from Phase 2 into this phase**, ahead of Phase 1, so a real baseline exists before any
+      other fix lands. Severity order resumes normally (Phase 1 critical fixes next) once this is
+      done.
+- [x] Retarget all six `.csproj` files (`CarRent.Api`, `CarRent.Application`, `CarRent.Contracts`,
+      `CarRent.Api.Tests.Unit`, `CarRent.Application.Tests.Unit`, `Helpers/Identity.Api`) from
+      `net7.0` to `net8.0`. Bumped: `Npgsql` 7.0.4 → 10.0.3, `Microsoft.Extensions.DependencyInjection.Abstractions`
+      7.0.0 → 10.0.9 (both multi-target down to net8.0 fine), `Microsoft.AspNetCore.Authentication.JwtBearer`
+      7.0.10 → 8.0.28, `Microsoft.AspNetCore.OpenApi` 7.0.10/7.0.0 → 8.0.28 (both pinned to the
+      8.0.x line specifically — these two packages are version-locked to their runtime major
+      version, so the "latest" 10.0.9 resolved by a bare `dotnet add package` is NOT net8-compatible;
+      had to pin explicitly), `System.IdentityModel.Tokens.Jwt` 6.26.1 → 8.19.1. Also discovered
+      and fixed a second vulnerable-transitive-package issue while verifying: `xunit` 2.5.0 pulled
+      in an ancient `NETStandard.Library 1.6.1` → `System.Net.Http`/`System.Text.RegularExpressions`
+      4.3.0 chain (2 more High-severity CVEs, not in the original review) — bumped `xunit` 2.5.0 →
+      2.9.3, `xunit.runner.visualstudio` 2.5.0 → 2.8.2, `Microsoft.NET.Test.Sdk` 17.7.2 → 17.14.1
+      in both test projects, which drops the old chain entirely. (REVIEW #6 — moved up from Phase 2,
+      see deviation note above)
+- [x] Confirmed `dotnet build` and `dotnet test` succeed post-upgrade: build is clean (6 warnings,
+      all pre-existing nullable/logging-template nits unrelated to this change, 0 errors);
+      `dotnet list package --vulnerable --include-transitive` reports zero vulnerable packages
+      across all six projects (down from 4 distinct CVEs: Npgsql, System.IdentityModel.Tokens.Jwt,
+      System.Net.Http, System.Text.RegularExpressions). **Real baseline recorded: 22/22 tests
+      passing** (5 in `CarRent.Application.Tests.Unit`, 17 in `CarRent.Api.Tests.Unit`), 0 failed,
+      0 skipped.
 
 ### Phase 1 — Critical fixes
 - [ ] Remove the hardcoded JWT signing key from `CarRent.Api/appsettings.Development.json` and
@@ -187,11 +221,7 @@ category of naming cleanup.
       unrecognized) instead of interpolating the raw value into the SQL string. Add a repository-
       or service-level test asserting an unrecognized/malicious `SortField` value does not reach
       the SQL string unescaped. (REVIEW #5)
-- [ ] Retarget all six `.csproj` files (`CarRent.Api`, `CarRent.Application`, `CarRent.Contracts`,
-      `CarRent.Api.Tests.Unit`, `CarRent.Application.Tests.Unit`, `Helpers/Identity.Api`) from
-      `net7.0` to `net8.0`, and bump `Microsoft.AspNetCore.*`, `Microsoft.Extensions.*`, and any
-      other EOL-line packages to their `net8.0`-compatible versions. Confirm `dotnet build` and
-      `dotnet test` still pass after the bump. (REVIEW #6)
+- [x] ~~Retarget to net8.0~~ — done in Phase 0 (moved up; see deviation note there). (REVIEW #6)
 - [ ] Self-review + `/verify` on Phase 2 changes
 
 ### Phase 3 — Medium/Low fixes
