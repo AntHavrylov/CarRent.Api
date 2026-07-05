@@ -32,7 +32,7 @@ public class RatingsRepository : IRatingsRepository
 
     }
 
-    public async Task<bool> ExistsCarRatingForUser(Guid userId, Guid carId, CancellationToken token = default)
+    public async Task<bool> HasOrderForCarAsync(Guid userId, Guid carId, CancellationToken token = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""

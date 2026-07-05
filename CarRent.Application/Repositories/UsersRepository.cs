@@ -30,21 +30,25 @@ public class UsersRepository : IUsersRepository
 
     public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
     {
-        using var connection = await _dbConnectionFactory.CreateConnectionAsync(token); 
+        using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+        using var transaction = connection.BeginTransaction();
+
         await connection.ExecuteAsync(new CommandDefinition($"""
             delete from {DbConstants.OrdersTableName}
             where user_id = @id;
-            """, new { id }, cancellationToken: token));
+            """, new { id }, transaction, cancellationToken: token));
 
         await connection.ExecuteAsync(new CommandDefinition($"""
             delete from { DbConstants.RatingsTableName }
             where user_id = @id;
-            """, new { id} , cancellationToken: token));
+            """, new { id }, transaction, cancellationToken: token));
 
         var result = await connection.ExecuteAsync(new CommandDefinition($"""
             delete from {DbConstants.UsersTableName}
             where id = @id;
-            """, new { id} , cancellationToken: token));
+            """, new { id }, transaction, cancellationToken: token));
+
+        transaction.Commit();
 
         _logger.LogInformation("User {UserId} delete {OpResult}", id, result > 0 ? "success" : "fail");
         return result > 0;

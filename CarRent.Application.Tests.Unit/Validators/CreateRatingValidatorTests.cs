@@ -27,7 +27,7 @@ public class CreateRatingValidatorTests
             CarId = Guid.NewGuid(),
             Rating = 1
         };
-        _ratingRepository.ExistsCarRatingForUser(carRating.UserId, carRating.CarId).Returns(false);
+        _ratingRepository.HasOrderForCarAsync(carRating.UserId, carRating.CarId).Returns(false);
 
         // Act
         var result = () => _sut.ValidateAndThrowAsync(carRating);
@@ -48,7 +48,7 @@ public class CreateRatingValidatorTests
             CarId = Guid.NewGuid(),
             Rating = 1
         };
-        _ratingRepository.ExistsCarRatingForUser(carRating.UserId, carRating.CarId).Returns(true);
+        _ratingRepository.HasOrderForCarAsync(carRating.UserId, carRating.CarId).Returns(true);
 
         // Act
         var result = () => _sut.ValidateAndThrowAsync(carRating);

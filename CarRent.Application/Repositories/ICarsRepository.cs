@@ -21,6 +21,8 @@ namespace CarRent.Application.Repositories
 
         Task<bool> ExistsByIdAsync(Guid id, CancellationToken token = default);
 
+        Task<bool> ExistsBySlugAndIdAsync(Guid id, string slug, CancellationToken token = default);
+
         Task<int> GetCountAsync(GetAllCarsOptions options, CancellationToken token = default);
     }
 }

@@ -10,15 +10,15 @@ public class CreateOrUpdateOrderRequestValidator : AbstractValidator<CreateOrUpd
     private readonly IOrdersRepository _ordersRepository;
     private readonly ICarsRepository _carsRepository;
 
-    public CreateOrUpdateOrderRequestValidator(IOrdersRepository ordersRepository, 
-        ICarsRepository carsRepository,
-        CancellationToken token = default)
+    public CreateOrUpdateOrderRequestValidator(IOrdersRepository ordersRepository,
+        ICarsRepository carsRepository)
     {
         _carsRepository = carsRepository;
         _ordersRepository = ordersRepository;
 
         RuleFor(x => x.DateFrom)
-            .GreaterThanOrEqualTo(DateTime.Now);
+            .GreaterThanOrEqualTo(DateTime.UtcNow)
+            .WithMessage("Date from has to be a UTC timestamp that is not in the past.");
         RuleFor(x => x.DateTo)
             .GreaterThanOrEqualTo(x => x.DateFrom)
             .WithMessage($"Date to has to be greated than date from.");

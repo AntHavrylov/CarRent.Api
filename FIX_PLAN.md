@@ -264,40 +264,57 @@ category of naming cleanup.
       (review-before-commit, not just review-before-push).
 
 ### Phase 3 — Medium/Low fixes
-- [ ] Wrap the three sequential deletes in `CarsRepository.DeleteByIdAsync` and
-      `UsersRepository.DeleteByIdAsync` in a single `IDbTransaction` (begin before the first
-      delete, commit after the last, rollback on exception) so a partial failure can't orphan
-      child rows. (REVIEW #7)
-- [ ] Add `Page` (`>= 1`) and `PageSize` (e.g. inclusive `1-100`) validation rules to
-      `GetAllCarsRequestValidator`, and add validator tests for the boundary values (`0`,
-      negative, and an oversized `PageSize`). (REVIEW #8)
-- [ ] Make `CarsRepository.GetByIdAsync` compute `Rating` the same way `GetAllAsync` does (reuse
-      the same joined query, or extract a shared fragment) so single-car and list responses never
-      disagree on a car's average rating. (REVIEW #9)
-- [ ] Remove the unused `CancellationToken token = default` constructor parameter from
-      `CreateOrUpdateOrderRequestValidator`, `CreateRatingValidator`, and `CreateUserValidator` —
-      the real token already flows through each `MustAsync` lambda's own parameter. (REVIEW #10)
-- [ ] Rename `IRatingsRepository.ExistsCarRatingForUser` / `RatingsRepository.ExistsCarRatingForUser`
-      to `HasOrderForCarAsync` (and update the one call site in `CreateRatingValidator`) to match
-      what the query actually checks. (REVIEW #11)
-- [ ] Fix the typo'd validator file/class names: `CreateOrUpdateCatRequestValidator` →
-      `CreateOrUpdateCarRequestValidator`, `CreateOrUpdateUserRequestValodator` →
-      `CreateOrUpdateUserRequestValidator` (rename files to match), and update any references.
-      (REVIEW #12)
-- [ ] Add a car-slug uniqueness rule to the car validator (mirroring
-      `CreateUserValidator`'s email-uniqueness pattern), using `ICarsRepository`, so the
-      `Conflict()` branch in `CarsController.Create` becomes reachable for actual duplicate cars
-      instead of being dead code. (REVIEW #13)
-- [ ] Add indexes in `DbInitializer` for `cars(slug)`, `cars(yearofproduction)`,
-      `orders(user_id)`, `users(email)`, and `ratings(car_id)` so the query patterns each
-      repository actually uses (list/search, "my orders", email uniqueness, rating average) get
-      an index seek instead of a full table scan. (REVIEW #14)
-- [ ] Standardize order date handling on UTC: switch `CreateOrUpdateOrderRequestValidator`'s
-      `DateFrom`/`DateTo` comparison from `DateTime.Now` to `DateTime.UtcNow` (or migrate the
-      request/model to `DateTimeOffset`), and confirm inbound timestamps are normalized to UTC
-      before validation/persistence so the comparison isn't sensitive to the API server's local
-      timezone. Add a validator test pinning this behavior. (REVIEW #15)
-- [ ] Self-review + `/verify` on Phase 3 changes
+- [x] Wrapped the three sequential deletes in `CarsRepository.DeleteByIdAsync` and
+      `UsersRepository.DeleteByIdAsync` in a single `IDbTransaction` (`connection.BeginTransaction()`,
+      passed to each `CommandDefinition`, explicit `transaction.Commit()` at the end — an
+      exception before commit rolls back implicitly via the `using` disposal). (REVIEW #7)
+- [x] Added `Page` (`>= 1`) and `PageSize` (inclusive `1-100`) validation rules to
+      `GetAllCarsRequestValidator`. Added `GetAllCarsRequestValidatorTests.cs` covering valid
+      input, `Page` `0`/`-1`, `PageSize` `0`/`-1`/`101`/`1000000`, and the `1`/`100` boundary
+      values not throwing. (REVIEW #8)
+- [x] `CarsRepository.GetByIdAsync` now runs the same `left join ratings ... group by id` query
+      `GetAllAsync` uses (scoped to `where c.id = @id`) instead of a plain `select *`, so
+      single-car and list responses compute `Rating` identically. (REVIEW #9)
+- [x] Removed the unused `CancellationToken token = default` constructor parameter from
+      `CreateOrUpdateOrderRequestValidator`, `CreateRatingValidator`, and `CreateUserValidator`.
+      Verified no test constructs any of the three passing a token argument, so no test changes
+      needed. (REVIEW #10)
+- [x] Renamed `IRatingsRepository`/`RatingsRepository`'s `ExistsCarRatingForUser` →
+      `HasOrderForCarAsync` (4 call sites: interface, implementation, `CreateRatingValidator`, and
+      `CreateRatingValidatorTests`). (REVIEW #11)
+- [x] Renamed `CreateOrUpdateCatRequestValidator` → `CreateOrUpdateCarRequestValidator` (file +
+      class, via `git mv` to preserve history; updated the one test reference) and
+      `CreateOrUpdateUserRequestValodator` → `CreateOrUpdateUserRequestValidator` (file + class;
+      had zero other references anywhere). (REVIEW #12)
+- [x] Added a car-slug uniqueness rule. Since `Car.Slug` is a computed property on the *domain*
+      model (derived from Brand/Model/YearOfProduction) and isn't present on the
+      `CreateOrUpdateCarRequest` DTO at all, this couldn't live in the existing request-shape
+      validator — instead added a new **`CreateOrUpdateCarValidator : AbstractValidator<Car>`**
+      in the Application layer, exactly mirroring `CreateUserValidator`'s
+      email-uniqueness pattern (new `ICarsRepository.ExistsBySlugAndIdAsync(id, slug)` method,
+      `where slug = @slug and id != @id`), and wired `IValidator<Car>` into `CarsService`
+      (`CreateAsync`/`UpdateAsync` now call `ValidateAndThrowAsync` first, matching how
+      `UsersService` already does it — `CarsService` previously called no validator at all).
+      Added `CreateOrUpdateCarValidatorTests.cs` (2 tests). This makes the `Conflict()` branch in
+      `CarsController.Create` reachable for real duplicate cars. (REVIEW #13)
+- [x] Added indexes in `DbInitializer` for `cars(slug)`, `cars(yearofproduction)`,
+      `orders(user_id)`, `users(email)`, and `ratings(car_id)`, each as its own
+      `create index if not exists` statement (matching the existing `create table if not exists`
+      idempotency style). (REVIEW #14)
+- [x] Switched `CreateOrUpdateOrderRequestValidator`'s `DateFrom` comparison from `DateTime.Now`
+      to `DateTime.UtcNow` (the smaller of the plan's two options — a full `DateTimeOffset`
+      migration would touch `Contracts`/`Models`/the DB column type, out of proportion for this
+      fix). Updated `CreateOrUpdateOrderRequestValidatorTests.cs`'s five `DateTime.Now` usages to
+      `DateTime.UtcNow` too — the pre-existing tests were themselves timezone-fragile against the
+      corrected check (a local time behind UTC would have failed the "valid request" test
+      nondeterministically depending on the machine's timezone). (REVIEW #15)
+- [x] Self-review + `/verify` on Phase 3 changes: `dotnet build` clean (6 pre-existing warnings,
+      same set as baseline, 0 errors); `dotnet test` — **45/45 passing** (34 from Phase 2 + 11
+      new: 9 `GetAllCarsRequestValidatorTests` + 2 `CreateOrUpdateCarValidatorTests`), 0 failed, 0
+      skipped. Ran `CarRent.Api` directly again — DI still resolves cleanly with the new
+      `IValidator<Car>` dependency on `CarsService`, fails at the same expected Postgres-connection
+      point as before (no regression in startup wiring). **Regression note:** none found. This
+      work is NOT yet committed — holding for user review.
 
 ### Phase 4 — Requested features
 *(none — no new features were requested for this pass; skipped per the Non-Goals section above)*

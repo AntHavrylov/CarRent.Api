@@ -63,24 +63,37 @@ namespace CarRent.Application.Repositories
             """, new { id }, cancellationToken: token));
         }
 
+        public async Task<bool> ExistsBySlugAndIdAsync(Guid id, string slug, CancellationToken token = default)
+        {
+            using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+            return await connection.ExecuteScalarAsync<bool>(new CommandDefinition($"""
+            select count(1) from {DbConstants.CarsTableName}
+            where slug = @slug
+            and id != @id
+            """, new { id, slug }, cancellationToken: token));
+        }
+
         public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
         {
             using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+            using var transaction = connection.BeginTransaction();
 
             await connection.ExecuteAsync(new CommandDefinition($""""
                 delete from {DbConstants.OrdersTableName}
                 where car_id = @id;
-                """", new { id }, cancellationToken: token));
+                """", new { id }, transaction, cancellationToken: token));
 
             await connection.ExecuteAsync(new CommandDefinition($"""
                 delete from {DbConstants.RatingsTableName}
                 where car_id = @id;
-                """, new { id }, cancellationToken: token));
+                """, new { id }, transaction, cancellationToken: token));
 
-            var result = await connection.ExecuteAsync(new CommandDefinition($"""                
+            var result = await connection.ExecuteAsync(new CommandDefinition($"""
                 delete from {DbConstants.CarsTableName}
                 where id = @id;
-                """, new { id }, cancellationToken: token));
+                """, new { id }, transaction, cancellationToken: token));
+
+            transaction.Commit();
 
             _logger.LogInformation("Car with id {CarId} delete {result}",
                 id, result > 0 ? "success" : "fail");
@@ -149,15 +162,28 @@ namespace CarRent.Application.Repositories
 
         public async Task<Car?> GetByIdAsync(Guid id, CancellationToken token = default)
         {
-            using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);                   
+            using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
-            var result = await connection.QuerySingleOrDefaultAsync<Car>(new CommandDefinition($"""
-                select * from {DbConstants.CarsTableName}
-                where id = @id
+            var result = await connection.QuerySingleOrDefaultAsync(new CommandDefinition($"""
+                select c.*, round(avg(r.rating), 1) as rating
+                from {DbConstants.CarsTableName} c
+                left join {DbConstants.RatingsTableName} r on r.car_id = c.id
+                where c.id = @id
+                group by c.id
                 """
                 , new { id }, cancellationToken: token));
             _logger.LogInformation("Car id {CarId} retrieved", id);
-            return result;
+
+            return result is null ? null : new Car()
+            {
+                Id = result.id,
+                YearOfProduction = result.yearofproduction,
+                Brand = result.brand,
+                Model = result.model,
+                Rating = (float?)result.rating,
+                EngineType = (EngineType)result.enginetype,
+                BodyType = (BodyType)result.bodytype,
+            };
         }
 
         public async Task<int> GetCountAsync(GetAllCarsOptions options, CancellationToken token = default)
