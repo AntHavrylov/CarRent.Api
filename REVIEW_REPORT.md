@@ -6,6 +6,8 @@
 
 The architecture is clean and consistently applied: thin controllers, a real service/repository split, centralized Mapster configuration, and FluentValidation used at both the request-shape and domain layers exactly as `CLAUDE.md` describes. The main problems are not architectural — they're a committed shared JWT signing secret that allows full auth bypass, a broken-object-level-authorization gap on order updates, a `QuerySingleAsync` bug that turns every "not found" lookup on two controllers into an unhandled 500, and a dormant but real SQL-injection landmine in the cars sort clause. None of these require a redesign; they're all local, fixable bugs in an otherwise sound codebase.
 
+*(2026-07-05 addendum: findings #14 and #15 were added on a follow-up pass — missing indexes on every column the repositories actually filter on, and a local-time-vs-UTC ambiguity in order date validation. Findings #1-#13 are unchanged from the original pass.)*
+
 ## Findings
 
 ### 🔴 Critical
@@ -58,6 +60,16 @@ Both methods issue three sequential `ExecuteAsync` calls on the same connection 
 `GetAllAsync` computes `Rating` via `left join ratings ... group by id`, but `GetByIdAsync` does a plain `select * from cars where id = @id` with no join — the `cars` table itself has no `rating` column, so `Car.Rating` on a single-car fetch is always its default (`0`), never the real average.
 **Failure scenario:** `GET /api/cars` shows a car with a 4.5 average rating; `GET /api/cars/{same id}` for the detail view shows `0`/`null` for the same car — inconsistent data for the same resource depending on which endpoint the client called.
 **Fix direction:** Reuse the same joined query (or a shared query fragment) in `GetByIdAsync` so both endpoints compute `Rating` the same way.
+
+**14. No indexes on the columns every filtered query actually uses** — `CarRent.Application/DataBase/DbInitializer.cs:18-51`
+`DbInitializer` creates `cars`, `users`, `orders`, and `ratings` with only their primary keys (or, for `ratings`, a composite PK on `(user_id, car_id)`). No other index exists anywhere. But the actual query patterns filter on other columns: `CarsRepository.GetAllAsync`/`GetCountAsync` filter on `slug` (`like`) and `yearofproduction`; `OrdersRepository.GetAllByUserIdAsync` filters on `user_id`; `UsersRepository.ExistsByEmailAndIdAsync` filters on `email`; `RatingsRepository.GetRatingAsync(carId)` filters on `car_id` alone — which the composite `(user_id, car_id)` PK index can't serve efficiently, since `car_id` isn't the leading column.
+**Failure scenario:** With more than a trivial number of rows, every car list/search, every "my orders" lookup, every email-uniqueness check on user create/update, and every car-rating average computation does a full sequential table scan instead of an index seek — response times degrade linearly with table size instead of staying roughly constant, and this gets worse silently as the demo data set is replaced with anything resembling production volume.
+**Fix direction:** Add indexes for `cars(slug)`, `cars(yearofproduction)`, `orders(user_id)`, `users(email)`, and `ratings(car_id)` in `DbInitializer` (or a proper migration if one gets introduced later).
+
+**15. Order date validation mixes local server time with client-supplied `DateTime` of ambiguous `Kind`** — `CarRent.Api/Validators/CreateOrUpdateOrderRequestValidator.cs:20-21`
+`RuleFor(x => x.DateFrom).GreaterThanOrEqualTo(DateTime.Now)` compares the request's `DateFrom` against the API server's local wall-clock time. `DateTime` equality/comparison operators compare raw ticks and ignore `Kind` entirely, and `CreateOrUpdateOrderRequest.DateFrom`/`DateTo` are plain `DateTime` (not `DateTimeOffset`), whose `Kind` after JSON deserialization depends entirely on whether the client's ISO-8601 string included a `Z`/offset suffix (`Utc`), no suffix (`Unspecified`), or was otherwise supplied — the API never normalizes this to a single timezone before comparing or storing it (`orders.date_from`/`date_to` are Postgres `timestamp without time zone`).
+**Failure scenario:** If the API server isn't running in UTC (e.g. deployed in a non-UTC timezone, or just a developer's local machine), a client that correctly sends a UTC timestamp for "10 minutes from now" can be rejected as being "in the past" (or, in the opposite offset direction, a genuinely past timestamp could be accepted as valid), because the comparison is between two different clock references treated as if they were the same one. This is highest-impact right at the create-order boundary, where it directly gates whether a real booking request succeeds.
+**Fix direction:** Standardize on `DateTimeOffset` (or explicit `DateTime.UtcNow` + require/convert all inbound timestamps to UTC before validating or persisting) so every comparison and stored value shares one unambiguous reference frame.
 
 ## 🟢 Low
 

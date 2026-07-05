@@ -10,7 +10,9 @@ from REVIEW_REPORT.md (e.g. "(REVIEW #3)") or be tagged [FEATURE]. Keep checkbox
 
 **Scope assumptions (clarifying questions were declined, so these are stated explicitly rather
 than guessed silently):**
-- No new features are in scope — this plan only fixes the 13 findings in `REVIEW_REPORT.md`.
+- No new features are in scope — this plan only fixes the 15 findings in `REVIEW_REPORT.md`
+  (findings #14 and #15 were added on a later review pass — missing indexes and a
+  local-time-vs-UTC date validation bug — and are folded into Phase 3 below).
 - Finding #6 (.NET 7 is EOL) **is included** — retargeting to `net8.0` is the recommended default
   for a High finding with no stated hosting constraint blocking it. If there turns out to be an
   external constraint (e.g. a hosting environment pinned to .NET 7), skip Phase 2's upgrade task
@@ -66,7 +68,7 @@ medium/low-severity correctness and cleanup items.
 
 - [ ] All Critical and High findings from `REVIEW_REPORT.md` (#1-#6) are fixed or explicitly
       deferred with a stated reason.
-- [ ] All Medium/Low findings (#7-#13) are fixed or explicitly deferred with a stated reason.
+- [ ] All Medium/Low findings (#7-#15) are fixed or explicitly deferred with a stated reason.
 - [ ] No new features are introduced (none were requested).
 - [ ] Full test suite passes (`dotnet test` from the solution root, and each project
       individually: `dotnet test CarRent.Application.Tests.Unit`, `dotnet test
@@ -217,6 +219,15 @@ category of naming cleanup.
       `CreateUserValidator`'s email-uniqueness pattern), using `ICarsRepository`, so the
       `Conflict()` branch in `CarsController.Create` becomes reachable for actual duplicate cars
       instead of being dead code. (REVIEW #13)
+- [ ] Add indexes in `DbInitializer` for `cars(slug)`, `cars(yearofproduction)`,
+      `orders(user_id)`, `users(email)`, and `ratings(car_id)` so the query patterns each
+      repository actually uses (list/search, "my orders", email uniqueness, rating average) get
+      an index seek instead of a full table scan. (REVIEW #14)
+- [ ] Standardize order date handling on UTC: switch `CreateOrUpdateOrderRequestValidator`'s
+      `DateFrom`/`DateTo` comparison from `DateTime.Now` to `DateTime.UtcNow` (or migrate the
+      request/model to `DateTimeOffset`), and confirm inbound timestamps are normalized to UTC
+      before validation/persistence so the comparison isn't sensitive to the API server's local
+      timezone. Add a validator test pinning this behavior. (REVIEW #15)
 - [ ] Self-review + `/verify` on Phase 3 changes
 
 ### Phase 4 — Requested features
