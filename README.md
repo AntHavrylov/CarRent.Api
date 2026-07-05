@@ -10,6 +10,7 @@ Welcome to the Car Rent Service Web API repository! This web API application pro
 - [Database](#database)
 - [Testing](#testing)
 - [Getting Started](#getting-started)
+- [Secrets Configuration](#secrets-configuration)
 - [Postman Collection](#postman-collection)
 - [Docker Compose](#docker-compose)
 
@@ -64,11 +65,37 @@ To run this application locally or in your own environment, follow these steps:
 
 1. Clone this repository to your local machine.
 
-2. Configure your PostgreSQL database connection string in the application settings.
+2. Stand up a PostgreSQL instance matching the host/port/database name you intend to use (see
+   [Database](#database)).
 
-3. Build and run the application.
+3. Configure secrets for both `CarRent.Api` and `Helpers/Identity.Api` via `dotnet user-secrets`
+   (see [Secrets Configuration](#secrets-configuration) below) — the connection string and JWT
+   signing key are **not** committed to source control and must be supplied locally.
 
-4. Utilize a tool like Postman, a web browser, or Swagger to interact with the API endpoints.
+4. Build and run the application.
+
+5. Utilize a tool like Postman, a web browser, or Swagger to interact with the API endpoints.
+
+## Secrets Configuration
+
+`CarRent.Api/appsettings*.json` and `Helpers/Identity.Api/appsettings*.json` intentionally do not
+contain the database connection string or the JWT signing key — both are real credentials and
+must never be committed. Supply them locally with [.NET user-secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets):
+
+```bash
+# From the repo root:
+dotnet user-secrets set "Database:ConnectionString" "Server=localhost;Port=5432;Database=products;User ID=<your-user>;Password=<your-password>;" --project CarRent.Api/CarRent.Api.csproj
+
+# CarRent.Api and Identity.Api must use the SAME key value, since CarRent.Api validates JWTs
+# signed by Identity.Api. Generate one high-entropy value and set it in both projects, e.g.:
+#   openssl rand -base64 64
+dotnet user-secrets set "Jwt:Key" "<your-generated-key>" --project CarRent.Api/CarRent.Api.csproj
+dotnet user-secrets set "Jwt:Key" "<your-generated-key>" --project Helpers/Identity.Api/Identity.Api.csproj
+```
+
+For any environment other than local development (staging, production), supply these same
+configuration keys via environment variables or your hosting platform's secrets manager instead of
+`appsettings.json` — never commit a real connection string or signing key.
 
 ## Postman Collection
 

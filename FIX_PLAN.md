@@ -140,9 +140,12 @@ category of naming cleanup.
       test added in Phase 5
 - [ ] No frontend in this repo — n/a
 - [ ] No secrets or environment-specific values committed as part of this work (closes #1, #2)
-- [ ] Docs updated to match the change: `CLAUDE.md`'s "Running the API requires..." section and
-      `README.md`'s "Getting Started" should mention `dotnet user-secrets` setup once #1/#2 land,
-      and both should reflect `net8.0` once #6 lands
+- [x] Docs updated to match the change: `README.md` now has a "Getting Started" step plus a new
+      "Secrets Configuration" section covering `dotnet user-secrets` setup (#1/#2). `CLAUDE.md`
+      could not be updated — it is untracked in git and is not present in the working tree in this
+      environment (same transient-file issue observed earlier with `REVIEW_REPORT.md`); this is a
+      pre-existing environment quirk unrelated to this fix pass, not something introduced by it.
+      Neither doc needed a net8.0-specific update — neither mentioned the `net7.0` TFM by name.
 
 ## Plan
 
@@ -186,20 +189,32 @@ category of naming cleanup.
       0 skipped.
 
 ### Phase 1 — Critical fixes
-- [ ] Remove the hardcoded JWT signing key from `CarRent.Api/appsettings.Development.json` and
-      `Helpers/Identity.Api/Controllers/IdentityController.cs`; move it to `dotnet user-secrets`
-      for local dev (both projects must share the same key value in their respective user-secrets
-      stores) and document the setup step in `README.md`. Generate a new, high-entropy key value
-      (do not reuse the leaked one). (REVIEW #1)
-- [ ] Remove the committed Postgres connection string/credentials from
-      `CarRent.Api/appsettings.json` and `appsettings.Development.json`; move to `dotnet
-      user-secrets` for local dev, leaving only a non-functional placeholder shape in the
-      committed `appsettings.json` (e.g. empty `ConnectionString`) plus a `README.md` note on how
-      to supply it. Rotate the password if this local Postgres instance is reachable from
-      anywhere beyond localhost. (REVIEW #2)
-- [ ] Self-review + `/verify` on Phase 1 changes — specifically confirm the app still starts
-      locally with secrets supplied via user-secrets, and that `git grep` for the old key/password
-      strings returns nothing in the working tree
+- [x] Removed the hardcoded JWT signing key from `CarRent.Api/appsettings.Development.json` and
+      the `TokenSecret` const in `Helpers/Identity.Api/Controllers/IdentityController.cs` (now
+      injects `IConfiguration` and reads `Jwt:Key`/`Jwt:Issuer`/`Jwt:Audience`, matching
+      `CarRent.Api`'s existing pattern instead of duplicating the Issuer/Audience URLs a second
+      time as separate hardcoded literals). Generated a new high-entropy key via `openssl rand
+      -base64 64` (not the leaked value) and set it as `Jwt:Key` in both projects' `dotnet
+      user-secrets` stores (`CarRent.Api` UserSecretsId `1dae518f-...`, `Identity.Api`
+      `cd27ef5c-...`) — confirmed both resolve to the *same* value. Documented the setup in a new
+      "Secrets Configuration" section in `README.md`. (REVIEW #1)
+- [x] Removed the committed Postgres connection string from `CarRent.Api/appsettings.Development.json`
+      (deleted entirely) and blanked it to `""` in `CarRent.Api/appsettings.json` (non-functional
+      placeholder, loaded in every environment). Set the real value as `Database:ConnectionString`
+      in `CarRent.Api`'s user-secrets store for local dev. Not rotating the password — confirmed
+      it's a `localhost`-only value, not reachable beyond this machine. Documented in the same
+      `README.md` section as above. (REVIEW #2)
+- [x] Self-review + `/verify` on Phase 1 changes: `dotnet clean` + `dotnet build` confirms the
+      same 6 pre-existing warnings as the Phase 0 baseline (2× CS8618, 2× CA2017, 2× xUnit1048,
+      all unrelated to this phase's changes), 0 errors — no regression; `dotnet test` still
+      22/22 passing. Ran `CarRent.Api` directly (`dotnet run --project CarRent.Api.csproj`) — it
+      resolved `Database:ConnectionString` from user-secrets correctly and failed only at the
+      expected point (`Npgsql...Connection refused` to `127.0.0.1:5432`, since no Postgres runs in
+      this sandbox — not a config-resolution failure). Ran `Identity.Api` directly and called
+      `POST /token` — it returned a well-formed JWT signed with the shared user-secrets key, with
+      the correct `Issuer`/`Audience` claims sourced from config. `git grep` for both the old JWT
+      key literal and the old DB password string returns nothing in the working tree. **Regression
+      note:** none found — no other behavior changed.
 
 ### Phase 2 — High-severity fixes
 - [ ] Fix the order-update IDOR: in `OrdersService.UpdateAsync`
